@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/header :: html-head(${job.title})"></head>
+<body class="bg-light">
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<!-- Breadcrumb -->
+<div class="bg-white border-bottom py-3">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/jobs}" class="text-decoration-none">Jobs</a></li>
+                <li class="breadcrumb-item active" th:text="${job.title}">Job Title</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Left: Job Content -->
+        <div class="col-lg-8">
+            <!-- Job Header Card -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4 border">
+                <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="company-logo-frame" style="width: 72px; height: 72px;">
+                            <img th:if="${job.companyLogoUrl}" th:src="${job.companyLogoUrl}" th:alt="${job.companyName}"
+                                 onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\'company-initial\' style=\'font-size:1.5rem\'>' + this.alt.charAt(0) + '</span>';">
+                            <span th:unless="${job.companyLogoUrl}" class="company-initial" style="font-size: 1.5rem;"
+                                  th:text="${job.companyName != null ? #strings.substring(job.companyName,0,1) : 'J'}">J</span>
+                        </div>
+                        <div>
+                            <a th:href="@{/companies/{id}(id=${job.companyId})}" class="text-muted fw-bold text-decoration-none"
+                               th:text="${job.companyName}">Company Name</a>
+                            <h1 class="h3 fw-bold mb-1" th:text="${job.title}">Job Title</h1>
+                            <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+                                <span class="text-muted small"><i class="bi bi-geo-alt me-1"></i><span th:text="${job.location}">Location</span></span>
+                                <span class="text-muted small">&bull;</span>
+                                <span class="text-muted small"><i class="bi bi-clock me-1"></i>Posted <span th:text="${job.postedTimeAgo}">2d ago</span></span>
+                                <span class="text-muted small">&bull;</span>
+                                <span class="text-muted small"><i class="bi bi-eye me-1"></i><span th:text="${job.viewsCount}">0</span> views</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <!-- Save Job Button (Seeker only) -->
+                        <button sec:authorize="hasAuthority('ROLE_JOB_SEEKER')" id="btn-save-job"
+                                class="bookmark-btn"
+                                th:classappend="${job.saved ? 'saved' : ''}"
+                                th:onclick="'toggleSaveJob(' + ${job.id} + ', this)'"
+                                title="Save this job">
+                            <i th:class="${job.saved ? 'bi bi-bookmark-fill text-danger' : 'bi bi-bookmark'}"></i>
+                        </button>
+
+                        <!-- Apply Button -->
+                        <div sec:authorize="hasAuthority('ROLE_JOB_SEEKER')">
+                            <button th:if="${!job.hasApplied}" id="main-apply-btn"
+                                    class="btn btn-primary-custom btn-lg px-4"
+                                    data-bs-toggle="modal" data-bs-target="#applyJobModal">
+                                <i class="bi bi-send me-2"></i>Apply Now
+                            </button>
+                            <button th:if="${job.hasApplied}" class="btn btn-success btn-lg px-4" disabled>
+                                <i class="bi bi-check-circle-fill me-2"></i>Applied
+                            </button>
+                        </div>
+                        <div sec:authorize="!isAuthenticated()">
+                            <a th:href="@{/login}" class="btn btn-primary-custom btn-lg px-4">
+                                <i class="bi bi-person me-2"></i>Sign In to Apply
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tags Row -->
+                <div class="d-flex flex-wrap gap-2 mt-4 pt-3 border-top">
+                    <span class="badge-tag badge-primary-soft"><i class="bi bi-briefcase me-1"></i><span th:text="${job.employmentType}">Full Time</span></span>
+                    <span class="badge-tag badge-info-soft"><i class="bi bi-house me-1"></i><span th:text="${job.workplaceType}">Remote</span></span>
+                    <span class="badge-tag badge-warning-soft"><i class="bi bi-bar-chart me-1"></i><span th:text="${job.experienceLevel}">Senior</span></span>
+                    <span class="badge-tag badge-success-soft"><i class="bi bi-cash-stack me-1"></i>
+                        <span th:if="${job.minSalary != null and job.maxSalary != null}"
+                              th:text="'$' + #numbers.formatInteger(job.minSalary,0,'COMMA') + ' – $' + #numbers.formatInteger(job.maxSalary,0,'COMMA')">$100K - $150K</span>
+                        <span th:if="${job.minSalary == null}">Negotiable</span>
+                    </span>
+                    <span class="badge-tag"><i class="bi bi-person-workspace me-1"></i><span th:text="${job.minExperienceYears + '-' + (job.maxExperienceYears ?: '?') + ' yrs'}">3-5 yrs</span></span>
+                    <span class="badge-tag badge-primary-soft" th:text="${job.jobCategory}">Category</span>
+                </div>
+            </div>
+
+            <!-- Job Description -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4 border">
+                <h5 class="fw-bold mb-3"><i class="bi bi-file-text-fill text-primary me-2"></i>Job Description</h5>
+                <p th:text="${job.description}" class="text-secondary" style="white-space: pre-line; line-height: 1.7;">Description</p>
+            </div>
+
+            <!-- Responsibilities -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4 border" th:if="${job.responsibilities}">
+                <h5 class="fw-bold mb-3"><i class="bi bi-list-check text-primary me-2"></i>Key Responsibilities</h5>
+                <p th:text="${job.responsibilities}" class="text-secondary" style="white-space: pre-line; line-height: 1.7;">Responsibilities</p>
+            </div>
+
+            <!-- Requirements -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4 border" th:if="${job.requirements}">
+                <h5 class="fw-bold mb-3"><i class="bi bi-clipboard-check text-primary me-2"></i>Requirements & Qualifications</h5>
+                <p th:text="${job.requirements}" class="text-secondary" style="white-space: pre-line; line-height: 1.7;">Requirements</p>
+            </div>
+
+            <!-- Required Skills -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4 border" th:if="${!#lists.isEmpty(job.skills)}">
+                <h5 class="fw-bold mb-3"><i class="bi bi-lightning-fill text-primary me-2"></i>Required Skills</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge-tag badge-primary-soft fs-6" th:each="skill : ${job.skills}" th:text="${skill}">Skill</span>
+                </div>
+            </div>
+
+            <!-- Benefits -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4 border" th:if="${job.benefits}">
+                <h5 class="fw-bold mb-3"><i class="bi bi-gift-fill text-primary me-2"></i>Benefits & Perks</h5>
+                <p th:text="${job.benefits}" class="text-secondary" style="white-space: pre-line; line-height: 1.7;">Benefits</p>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Company Info + Details -->
+        <div class="col-lg-4">
+            <!-- Job Overview Card -->
+            <div class="bg-white rounded-4 shadow-sm p-4 mb-4 border">
+                <h6 class="fw-bold mb-3">Job Overview</h6>
+                <ul class="list-unstyled d-flex flex-column gap-3">
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-calendar3 text-primary mt-1"></i>
+                        <div>
+                            <small class="text-muted d-block">Posted</small>
+                            <span class="fw-semibold small" th:text="${job.postedTimeAgo}">2d ago</span>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2" th:if="${job.deadline}">
+                        <i class="bi bi-clock-history text-danger mt-1"></i>
+                        <div>
+                            <small class="text-muted d-block">Application Deadline</small>
+                            <span class="fw-semibold small" th:text="${#temporals.format(job.deadline, 'dd MMM yyyy')}">30 Oct 2026</span>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-briefcase text-primary mt-1"></i>
+                        <div>
+                            <small class="text-muted d-block">Employment Type</small>
+                            <span class="fw-semibold small" th:text="${job.employmentType}">Full Time</span>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-people text-primary mt-1"></i>
+                        <div>
+                            <small class="text-muted d-block">Applications</small>
+                            <span class="fw-semibold small" th:text="${job.applicationCount + ' applicants'}">0 applicants</span>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2" th:if="${job.recruiterName}">
+                        <i class="bi bi-person-badge text-primary mt-1"></i>
+                        <div>
+                            <small class="text-muted d-block">Posted by</small>
+                            <span class="fw-semibold small" th:text="${job.recruiterName}">Recruiter</span>
+                            <span class="d-block text-muted" style="font-size: 0.75rem;" th:text="${job.recruiterDesignation}">Title</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Company Info Card -->
+            <div class="bg-white rounded-4 shadow-sm p-4 border">
+                <h6 class="fw-bold mb-3">About the Company</h6>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="company-logo-frame">
+                        <img th:if="${job.companyLogoUrl}" th:src="${job.companyLogoUrl}" th:alt="${job.companyName}"
+                             onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\'company-initial\'>' + this.alt.charAt(0) + '</span>';">
+                        <span th:unless="${job.companyLogoUrl}" class="company-initial"
+                              th:text="${job.companyName != null ? #strings.substring(job.companyName,0,1) : 'J'}">J</span>
+                    </div>
+                    <div>
+                        <div class="fw-bold" th:text="${job.companyName}">Company Name</div>
+                        <small class="text-muted" th:text="${job.companyIndustry}">Industry</small>
+                    </div>
+                </div>
+                <p th:if="${job.companyDescription}" class="text-muted small" style="line-height: 1.6;"
+                   th:text="${#strings.abbreviate(job.companyDescription, 200)}">Description</p>
+                <ul class="list-unstyled small d-flex flex-column gap-2 mt-3 text-muted">
+                    <li th:if="${job.companySize}"><i class="bi bi-people me-2 text-primary"></i><span th:text="${job.companySize}">Size</span> employees</li>
+                    <li th:if="${job.companyFoundedYear}"><i class="bi bi-flag me-2 text-primary"></i>Founded in <span th:text="${job.companyFoundedYear}">2000</span></li>
+                    <li th:if="${job.companyWebsite}">
+                        <i class="bi bi-globe me-2 text-primary"></i>
+                        <a th:href="${job.companyWebsite}" target="_blank" class="text-primary text-decoration-none">Visit Website</a>
+                    </li>
+                </ul>
+                <a th:href="@{/companies/{id}(id=${job.companyId})}" class="btn btn-outline-custom w-100 mt-3 btn-sm">
+                    View Company Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Apply Modal -->
+<div sec:authorize="hasAuthority('ROLE_JOB_SEEKER')" class="modal fade" id="applyJobModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header bg-primary text-white rounded-top-4 border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-send me-2"></i>Apply for <span th:text="${job.title}">this Job</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="apply-job-form">
+                <div class="modal-body p-4">
+                    <input type="hidden" id="apply-job-id" th:value="${job.id}">
+
+                    <!-- Resume Selection -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Select Your Resume <span class="text-danger">*</span></label>
+                        <select class="form-select" id="apply-resume-select" required>
+                            <option value="">-- Choose a resume --</option>
+                            <option th:each="resume : ${resumes}" th:value="${resume.id}"
+                                    th:text="${resume.originalFilename + ' (' + (resume.primary ? '★ Primary' : #temporals.format(resume.uploadedAt, 'dd MMM yyyy')) + ')'}">
+                                Resume.pdf
+                            </option>
+                        </select>
+                        <div class="mt-2">
+                            <small class="text-muted">Or upload a new resume for this application:</small>
+                            <input type="file" class="form-control form-control-sm mt-1" id="apply-new-resume-file"
+                                   accept=".pdf,.doc,.docx">
+                        </div>
+                        <small class="text-muted">No resume? <a th:href="@{/seeker/resumes}" class="text-primary">Upload one here →</a></small>
+                    </div>
+
+                    <!-- Cover Letter -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cover Letter <span class="text-muted fw-normal small">(Optional)</span></label>
+                        <textarea class="form-control" id="apply-cover-letter" rows="5"
+                                  placeholder="Briefly describe why you're the perfect fit for this role..."></textarea>
+                    </div>
+
+                    <!-- Confirmation Info -->
+                    <div class="alert alert-info border-0 rounded-3 py-2 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Submitting your application will share your resume and contact details with the recruiter at <strong th:text="${job.companyName}">Company</strong>.
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-custom px-4" id="btn-submit-application">
+                        <i class="bi bi-send me-2"></i>Submit Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+<script th:src="@{/js/applications.js}"></script>
+</body>
+</html>
