@@ -50,4 +50,11 @@ public class AdminPageController {
         model.addAttribute("currentUser", user);
         return "admin/manage-applications";
     }
+
+    @GetMapping("/messages")
+    public String messages(Model model) {
+        User user = securityUtils.getCurrentUserOrThrow();
+        model.addAttribute("currentUser", user);
+        return "admin/messages";
+    }
 }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Job posts')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Job posts')"></header>
+        <main class="app-content">
+            <div class="page-head">
+                <div><h1>Job posts</h1><p>Edit, close or reopen your listings and see how they perform.</p></div>
+                <a th:href="@{/recruiter/post-job}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Post a job</a>
+            </div>
+            <div class="card-x"><div class="table-responsive"><table class="table table-x">
+                <thead><tr><th>Job</th><th>Status</th><th>Applicants</th><th>Views</th><th>Deadline</th><th class="text-end">Actions</th></tr></thead>
+                <tbody id="jobs-body"></tbody>
+            </table></div></div>
+            <div id="jobs-pag" class="mt-4"></div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script>Dash.recruiterJobs();</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Dashboard')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Dashboard')"></header>
+        <main class="app-content">
+            <div class="page-head">
+                <div>
+                    <h1 th:text="${'Welcome back, ' + #strings.arraySplit(currentUser.fullName, ' ')[0]}">Welcome back</h1>
+                    <p th:text="${company != null ? 'Hiring for ' + company.name : 'Set up your company profile to start posting jobs.'}">Hiring</p>
+                </div>
+                <a th:href="@{/recruiter/post-job}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Post a job</a>
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-xl-3"><div class="kpi"><div class="kpi-top"><span class="kpi-label">Job posts</span><span class="kpi-ico ico-brand"><i class="bi bi-briefcase"></i></span></div><div class="kpi-value" th:text="${stats.recruiterTotalJobs}">0</div><div class="kpi-foot" th:text="${stats.recruiterActiveJobs + ' active'}">0 active</div></div></div>
+                <div class="col-6 col-xl-3"><div class="kpi"><div class="kpi-top"><span class="kpi-label">Applicants</span><span class="kpi-ico ico-violet"><i class="bi bi-people"></i></span></div><div class="kpi-value" th:text="${stats.recruiterTotalApplicants}">0</div><div class="kpi-foot">Across all posts</div></div></div>
+                <div class="col-6 col-xl-3"><div class="kpi"><div class="kpi-top"><span class="kpi-label">In review</span><span class="kpi-ico ico-info"><i class="bi bi-hourglass-split"></i></span></div><div class="kpi-value" th:text="${stats.recruiterUnderReviewApplicants}">0</div><div class="kpi-foot">Awaiting a decision</div></div></div>
+                <div class="col-6 col-xl-3"><div class="kpi"><div class="kpi-top"><span class="kpi-label">Shortlisted</span><span class="kpi-ico ico-success"><i class="bi bi-stars"></i></span></div><div class="kpi-value" th:text="${stats.recruiterShortlistedApplicants}">0</div><div class="kpi-foot">Top candidates</div></div></div>
+            </div>
+            <div class="row g-4">
+                <div class="col-xl-7"><div class="card-x"><div class="card-x-header"><h2>Latest applicants</h2><a th:href="@{/recruiter/applicants}" class="small fw-semibold">View all</a></div>
+                    <table class="table table-x"><tbody id="latest-applicants"></tbody></table></div></div>
+                <div class="col-xl-5"><div class="card-x"><div class="card-x-header"><h2>Your job posts</h2><a th:href="@{/recruiter/manage-jobs}" class="small fw-semibold">Manage</a></div>
+                    <table class="table table-x"><tbody id="my-jobs"></tbody></table></div></div>
+            </div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script>Dash.recruiterDashboard();</script>
+</body>
+</html>

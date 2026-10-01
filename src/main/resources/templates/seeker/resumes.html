@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Resumes')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Resumes')"></header>
+        <main class="app-content">
+            <div class="page-head"><div><h1>Resumes</h1><p>Upload versions of your resume and choose the one employers see by default.</p></div></div>
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="card-x card-x-body">
+                        <input type="file" id="resume-file-input" accept=".pdf,.doc,.docx" class="d-none">
+                        <div class="dropzone" id="resume-dropzone" role="button" tabindex="0">
+                            <div class="dz-ico"><i class="bi bi-cloud-arrow-up"></i></div>
+                            <div class="fw-semibold text-ink">Drop your resume here or click to browse</div>
+                            <div class="small text-muted">PDF, DOC or DOCX · up to 10 MB</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card-x">
+                        <div class="card-x-header"><h2>Your files</h2><span class="small text-muted" th:text="${#lists.size(resumes) + ' uploaded'}">0</span></div>
+                        <div th:if="${#lists.isEmpty(resumes)}" class="empty-state">
+                            <div class="ico"><i class="bi bi-file-earmark"></i></div><h3>No resumes yet</h3><p>Upload one to start applying.</p>
+                        </div>
+                        <div class="list-row" th:each="r : ${resumes}">
+                            <span class="file-ico"><i class="bi bi-file-earmark-pdf"></i></span>
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="fw-semibold text-ink text-truncate" th:text="${r.originalFilename}">resume.pdf</div>
+                                <div class="small text-muted" th:text="${#temporals.format(r.uploadedAt,'MMM d, yyyy')}">date</div>
+                            </div>
+                            <span th:if="${r.primary}" class="tag tag-brand">Primary</span>
+                            <a class="btn btn-ghost btn-icon btn-sm" th:href="@{/api/resumes/download/{id}(id=${r.id},inline=true)}" target="_blank" title="Preview" aria-label="Preview"><i class="bi bi-eye"></i></a>
+                            <a class="btn btn-ghost btn-icon btn-sm" th:href="@{/api/resumes/download/{id}(id=${r.id})}" title="Download" aria-label="Download"><i class="bi bi-download"></i></a>
+                            <button th:unless="${r.primary}" class="btn btn-soft btn-sm" th:attr="onclick=|Dash.setPrimary(${r.id})|">Make primary</button>
+                            <button class="btn btn-ghost btn-icon btn-sm text-danger" th:attr="onclick=|Dash.deleteResume(${r.id})|" title="Delete" aria-label="Delete"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script>Dash.seekerResumes();</script>
+</body>
+</html>

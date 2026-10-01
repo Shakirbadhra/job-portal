@@ -32,6 +32,8 @@ import java.util.List;
 @RequestMapping("/api")
 public class JobRestController {
 
+    private static final List<String> SORTABLE_FIELDS = java.util.Arrays.asList("createdAt", "minSalary", "maxSalary", "viewsCount", "title");
+
     private final JobService jobService;
     private final CompanyService companyService;
     private final UserService userService;
@@ -80,7 +82,8 @@ public class JobRestController {
         String[] sortParts = sort.split(",");
         Sort.Direction direction = sortParts.length > 1 && sortParts[1].equalsIgnoreCase("asc") ?
                 Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParts[0]));
+        String sortField = SORTABLE_FIELDS.contains(sortParts[0]) ? sortParts[0] : "createdAt";
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 50), Sort.by(direction, sortField));
 
         User currentUser = securityUtils.getCurrentUser().orElse(null);
         Page<JobSummaryDto> result = jobService.searchJobs(criteria, pageable, currentUser);

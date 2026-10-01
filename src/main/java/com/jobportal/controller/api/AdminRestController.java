@@ -18,6 +18,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.jobportal.entity.ContactMessage;
+import com.jobportal.exception.BadRequestException;
+import com.jobportal.exception.ResourceNotFoundException;
+import com.jobportal.repository.ContactMessageRepository;
+import com.jobportal.security.SecurityUtils;
+
 import java.util.List;
 
 @RestController
@@ -29,11 +35,17 @@ public class AdminRestController {
     private final JobService jobService;
     private final ApplicationService applicationService;
     private final AnalyticsService analyticsService;
+    private final ContactMessageRepository contactMessageRepository;
+    private final SecurityUtils securityUtils;
 
     public AdminRestController(UserService userService,
                                JobService jobService,
                                ApplicationService applicationService,
-                               AnalyticsService analyticsService) {
+                               AnalyticsService analyticsService,
+                               ContactMessageRepository contactMessageRepository,
+                               SecurityUtils securityUtils) {
+        this.contactMessageRepository = contactMessageRepository;
+        this.securityUtils = securityUtils;
         this.userService = userService;
         this.jobService = jobService;
         this.applicationService = applicationService;
@@ -52,6 +64,9 @@ public class AdminRestController {
 
     @PutMapping("/users/{id}/toggle-status")
     public ResponseEntity<ApiResponse<Boolean>> toggleUserStatus(@PathVariable Long id) {
+        if (securityUtils.getCurrentUserOrThrow().getId().equals(id)) {
+            throw new BadRequestException("You cannot disable your own administrator account");
+        }
         boolean active = userService.toggleUserStatus(id);
         String msg = active ? "User enabled successfully" : "User disabled successfully";
         return ResponseEntity.ok(ApiResponse.success(msg, active));
@@ -92,5 +107,34 @@ public class AdminRestController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "appliedAt"));
         Page<ApplicationResponseDto> applications = applicationService.getAllApplicationsForAdmin(pageable);
         return ResponseEntity.ok(ApiResponse.success("All applications", applications));
+    }
+
+    @PutMapping("/jobs/{id}/feature")
+    public ResponseEntity<ApiResponse<Boolean>> toggleFeatured(@PathVariable Long id) {
+        boolean featured = jobService.toggleFeatured(id);
+        return ResponseEntity.ok(ApiResponse.success(featured ? "Job marked as featured" : "Job removed from featured", featured));
+    }
+
+    @GetMapping("/messages")
+    public ResponseEntity<ApiResponse<List<ContactMessage>>> getMessages() {
+        return ResponseEntity.ok(ApiResponse.success("Messages fetched", contactMessageRepository.findAllByOrderByCreatedAtDesc()));
+    }
+
+    @PutMapping("/messages/{id}/read")
+    public ResponseEntity<ApiResponse<Void>> markMessageRead(@PathVariable Long id) {
+        ContactMessage message = contactMessageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Message not found with id: " + id));
+        message.setRead(true);
+        contactMessageRepository.save(message);
+        return ResponseEntity.ok(ApiResponse.success("Message marked as read"));
+    }
+
+    @DeleteMapping("/messages/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteMessage(@PathVariable Long id) {
+        if (!contactMessageRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Message not found with id: " + id);
+        }
+        contactMessageRepository.deleteById(id);
+        return ResponseEntity.ok(ApiResponse.success("Message deleted"));
     }
 }

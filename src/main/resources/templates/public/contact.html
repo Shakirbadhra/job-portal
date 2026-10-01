@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Contact us')"></head>
+<body>
+
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<main>
+    <section class="page-hero">
+        <div class="container">
+            <h1>Get in touch</h1>
+            <p>Questions, feedback or partnership ideas — our team usually replies within one business day.</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="card-x card-x-body d-flex gap-3">
+                            <div class="kpi-ico ico-brand flex-shrink-0" style="width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-life-preserver"></i></div>
+                            <div>
+                                <h2 class="h6 mb-1">Candidate support</h2>
+                                <p class="small text-muted mb-1">Help with your account, applications or resumes.</p>
+                                <a href="mailto:support@jobconnect.com" class="small fw-semibold">support@jobconnect.com</a>
+                            </div>
+                        </div>
+                        <div class="card-x card-x-body d-flex gap-3">
+                            <div class="kpi-ico ico-success flex-shrink-0" style="width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-building"></i></div>
+                            <div>
+                                <h2 class="h6 mb-1">Employers &amp; sales</h2>
+                                <p class="small text-muted mb-1">Talk to us about hiring at scale.</p>
+                                <a href="mailto:employers@jobconnect.com" class="small fw-semibold">employers@jobconnect.com</a>
+                            </div>
+                        </div>
+                        <div class="card-x card-x-body d-flex gap-3">
+                            <div class="kpi-ico ico-violet flex-shrink-0" style="width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-geo-alt"></i></div>
+                            <div>
+                                <h2 class="h6 mb-1">Headquarters</h2>
+                                <p class="small text-muted mb-0">548 Market St, Suite 300<br>San Francisco, CA 94104</p>
+                            </div>
+                        </div>
+                        <div class="card-x card-x-body d-flex gap-3">
+                            <div class="kpi-ico ico-warning flex-shrink-0" style="width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-clock"></i></div>
+                            <div>
+                                <h2 class="h6 mb-1">Support hours</h2>
+                                <p class="small text-muted mb-0">Monday – Friday, 9am – 6pm PT</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card-x p-4 p-lg-5">
+                        <h2 class="h4 mb-1">Send us a message</h2>
+                        <p class="text-muted mb-4">Fill in the form and we'll get back to you by email.</p>
+
+                        <div id="contact-success" class="alert-x success mb-4 d-none" role="status">
+                            <i class="bi bi-check-circle"></i><div id="contact-success-text">Thanks — your message is on its way.</div>
+                        </div>
+                        <div id="contact-error" class="alert-x error mb-4 d-none" role="alert"></div>
+
+                        <form id="contact-form" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="c-name" class="form-label required">Your name</label>
+                                    <input type="text" id="c-name" class="form-control" maxlength="100" required
+                                           th:value="${currentUser != null ? currentUser.fullName : ''}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="c-email" class="form-label required">Email</label>
+                                    <input type="email" id="c-email" class="form-control" required
+                                           th:value="${currentUser != null ? currentUser.email : ''}">
+                                </div>
+                                <div class="col-12">
+                                    <label for="c-subject" class="form-label required">Topic</label>
+                                    <select id="c-subject" class="form-select" required>
+                                        <option value="">Choose a topic…</option>
+                                        <option>Account or sign-in help</option>
+                                        <option>Question about an application</option>
+                                        <option>Posting jobs / employer accounts</option>
+                                        <option>Report a suspicious job posting</option>
+                                        <option>Partnerships &amp; press</option>
+                                        <option>Something else</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="c-message" class="form-label required">Message</label>
+                                    <textarea id="c-message" class="form-control" rows="6" minlength="10" maxlength="5000" required placeholder="How can we help?"></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg mt-4" id="btn-contact">Send message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script>
+    (function () {
+        const $ = id => document.getElementById(id);
+        $('contact-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            $('contact-error').classList.add('d-none');
+            const body = {
+                name: $('c-name').value.trim(),
+                email: $('c-email').value.trim(),
+                subject: $('c-subject').value,
+                message: $('c-message').value.trim()
+            };
+            let problem = null;
+            if (!body.name) problem = 'Please tell us your name.';
+            else if (!/^\S+@\S+\.\S+$/.test(body.email)) problem = 'Please enter a valid email address.';
+            else if (!body.subject) problem = 'Please choose a topic.';
+            else if (body.message.length < 10) problem = 'Your message should be at least 10 characters.';
+            if (problem) {
+                $('contact-error').innerHTML = '<i class="bi bi-exclamation-octagon"></i><div>' + JC.esc(problem) + '</div>';
+                $('contact-error').classList.remove('d-none');
+                return;
+            }
+            const btn = $('btn-contact');
+            JC.setLoading(btn, true, 'Sending…');
+            try {
+                const res = await JC.api('/api/contact', { method: 'POST', body: body });
+                $('contact-success-text').textContent = res.message;
+                $('contact-success').classList.remove('d-none');
+                $('c-subject').value = '';
+                $('c-message').value = '';
+            } catch (err) {
+                $('contact-error').innerHTML = '<i class="bi bi-exclamation-octagon"></i><div>' + JC.esc(err.message) + '</div>';
+                $('contact-error').classList.remove('d-none');
+            } finally {
+                JC.setLoading(btn, false);
+            }
+        });
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Post a job')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Post a job')"></header>
+        <main class="app-content">
+            <div class="page-head"><div><h1>Post a new job</h1>
+                <p th:text="${company != null ? 'This role will be listed under ' + company.name + '.' : 'Add your company in Company profile before posting.'}">Company</p></div></div>
+            <form th:replace="fragments/jobform :: form('Publish job')"></form>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script>Dash.jobForm(null);</script>
+</body>
+</html>

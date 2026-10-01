@@ -109,6 +109,7 @@ public class UserServiceImpl implements UserService {
         dto.setPhone(user.getPhone());
         dto.setRole(user.getRole().getName().name());
         dto.setEnabled(user.isEnabled());
+        dto.setCreatedAt(user.getCreatedAt());
 
         if (user.getRole().getName() == RoleName.ROLE_JOB_SEEKER) {
             jobSeekerRepository.findByUserId(user.getId()).ifPresent(seeker -> {
@@ -219,5 +220,20 @@ public class UserServiceImpl implements UserService {
     public Recruiter getRecruiter(User user) {
         return recruiterRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Recruiter profile not found for user: " + user.getEmail()));
+    }
+
+    @Override
+    public void changePassword(User user, String currentPassword, String newPassword) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new BadRequestException("Your current password is incorrect");
+        }
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new BadRequestException("New password must be at least 6 characters");
+        }
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new BadRequestException("New password must be different from the current password");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }

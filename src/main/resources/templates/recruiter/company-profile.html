@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Company profile')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Company profile')"></header>
+        <main class="app-content">
+            <div class="page-head">
+                <div><h1>Company profile</h1><p>This is how candidates see your organisation.</p></div>
+                <a th:if="${company != null}" th:href="@{/companies/{id}(id=${company.id})}" target="_blank" class="btn btn-outline"><i class="bi bi-box-arrow-up-right me-2"></i>View public page</a>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <form id="company-form" class="card-x mb-4">
+                        <div class="card-x-header"><h2>Company details</h2></div>
+                        <div class="card-x-body row g-3">
+                            <div class="col-md-6"><label class="form-label required" for="name">Company name</label><input id="name" class="form-control" required th:value="${company?.name}"></div>
+                            <div class="col-md-6"><label class="form-label" for="industry">Industry</label><input id="industry" class="form-control" th:value="${company?.industry}"></div>
+                            <div class="col-md-6"><label class="form-label" for="website">Website</label><input id="website" type="url" class="form-control" th:value="${company?.website}"></div>
+                            <div class="col-md-6"><label class="form-label" for="logoUrl">Logo URL</label><input id="logoUrl" type="url" class="form-control" placeholder="https://…/logo.png" th:value="${company?.logoUrl}"></div>
+                            <div class="col-md-4"><label class="form-label" for="location">Headquarters</label><input id="location" class="form-control" th:value="${company?.location}"></div>
+                            <div class="col-md-4"><label class="form-label" for="companySize">Company size</label>
+                                <select id="companySize" class="form-select"><option value="">Select…</option><option>1-10</option><option>11-50</option><option>51-200</option><option>201-1000</option><option>1000+</option></select></div>
+                            <div class="col-md-4"><label class="form-label" for="foundedYear">Founded</label><input id="foundedYear" type="number" min="1800" max="2100" class="form-control" th:value="${company?.foundedYear}"></div>
+                            <div class="col-12"><label class="form-label" for="description">About the company</label><textarea id="description" rows="6" class="form-control" th:text="${company?.description}"></textarea></div>
+                        </div>
+                        <div class="card-x-footer text-end"><button class="btn btn-primary">Save company</button></div>
+                    </form>
+                    <form id="profile-form" class="card-x">
+                        <div class="card-x-header"><h2>Your details</h2></div>
+                        <div class="card-x-body row g-3">
+                            <div class="col-md-6"><label class="form-label" for="fullName">Full name</label><input id="fullName" class="form-control" th:value="${profile.fullName}"></div>
+                            <div class="col-md-6"><label class="form-label" for="designation">Job title</label><input id="designation" class="form-control" th:value="${profile.designation}"></div>
+                            <div class="col-md-6"><label class="form-label" for="phone">Mobile</label><input id="phone" class="form-control" th:value="${profile.phone}"></div>
+                            <div class="col-md-6"><label class="form-label" for="officePhone">Office phone</label><input id="officePhone" class="form-control" th:value="${profile.officePhone}"></div>
+                        </div>
+                        <div class="card-x-footer text-end"><button class="btn btn-primary">Save details</button></div>
+                    </form>
+                </div>
+                <div class="col-lg-4"><form th:replace="fragments/dashboard :: password-card"></form></div>
+            </div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script th:inline="javascript">
+    Dash.companyForm(/*[[${company?.companySize}]]*/ '');
+    Dash.profileForm({}, ['fullName', 'designation', 'phone', 'officePhone']);
+</script>
+</body>
+</html>

@@ -47,6 +47,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     long countByStatus(ApplicationStatus status);
 
+    boolean existsByResume_IdAndJob_Recruiter_Id(Long resumeId, Long recruiterId);
+
     @Query("SELECT a.status, COUNT(a) FROM Application a GROUP BY a.status")
     List<Object[]> countApplicationsByStatus();
 }

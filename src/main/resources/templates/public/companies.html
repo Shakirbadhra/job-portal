@@ -1,48 +1,118 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/header :: html-head('Companies')"></head>
-<body class="bg-light">
+<body>
+
 <nav th:replace="fragments/header :: navbar"></nav>
 
-<div class="bg-white border-bottom py-4">
-    <div class="container">
-        <h1 class="h3 fw-bold mb-1">Top Companies</h1>
-        <p class="text-muted mb-0">Discover great places to work and their open roles</p>
-    </div>
-</div>
+<main>
+    <section class="page-hero">
+        <div class="container">
+            <div class="row align-items-end g-4">
+                <div class="col-lg-7">
+                    <h1>Companies hiring on JobConnect</h1>
+                    <p>Explore teams, cultures and open roles at <span th:text="${#lists.size(companies)}">12</span> organisations.</p>
+                </div>
+                <div class="col-lg-5">
+                    <div class="search-panel">
+                        <label class="search-field mb-0">
+                            <i class="bi bi-search"></i>
+                            <span class="visually-hidden">Search companies</span>
+                            <input type="search" id="company-search" placeholder="Search by name, industry or city" autocomplete="off">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<div class="container py-5">
-    <div class="row g-4" id="companies-grid">
-        <div class="col-md-4 col-lg-3" th:each="company : ${companies}">
-            <a th:href="@{/companies/{id}(id=${company.id})}" class="company-card d-block text-decoration-none h-100">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <div class="company-logo-frame" style="width: 56px; height: 56px; flex-shrink: 0;">
-                        <img th:if="${company.logoUrl}" th:src="${company.logoUrl}" th:alt="${company.name}"
-                             onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\'company-initial\'>' + this.alt.charAt(0) + '</span>';">
-                        <span th:unless="${company.logoUrl}" class="company-initial"
-                              th:text="${company.name != null ? #strings.substring(company.name,0,1) : 'C'}">C</span>
-                    </div>
-                    <div>
-                        <div class="fw-bold" th:text="${company.name}">Company Name</div>
-                        <small class="text-muted" th:text="${company.industry}">Industry</small>
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div class="chip-check" id="industry-filter">
+                    <input type="radio" name="industry" id="ind-all" value="" checked><label for="ind-all">All industries</label>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="hiring-only">
+                        <label class="form-check-label small" for="hiring-only">Actively hiring</label>
                     </div>
                 </div>
-                <p class="text-muted small mb-3" style="line-height: 1.5;"
-                   th:text="${company.description != null ? #strings.abbreviate(company.description, 100) : 'A leading company'}">Description</p>
-                <div class="d-flex flex-wrap gap-2">
-                    <span class="badge-tag badge-success-soft" th:text="${company.openJobsCount + ' Open Roles'}">0 roles</span>
-                    <span class="badge-tag" th:if="${company.location}" th:text="${company.location}"><i class="bi bi-geo-alt me-1"></i>Location</span>
+            </div>
+
+            <div class="row g-4" id="company-grid">
+                <div class="col-md-6 col-lg-4 company-col" th:each="c : ${companies}"
+                     th:attr="data-name=${#strings.toLowerCase(c.name)},data-industry=${c.industry},data-location=${#strings.toLowerCase(c.location)},data-jobs=${c.openJobsCount}">
+                    <article class="company-card">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span th:replace="fragments/ui :: logo(${c.name}, ${c.logoUrl}, 'lg')"></span>
+                            <div class="min-w-0">
+                                <h3 class="text-truncate"><a th:href="@{/companies/{id}(id=${c.id})}" th:text="${c.name}">Company</a></h3>
+                                <div class="small text-muted text-truncate" th:text="${c.industry}">Industry</div>
+                            </div>
+                        </div>
+                        <p class="desc mb-3" th:text="${c.description != null ? c.description : 'This company has not added a description yet.'}">Description</p>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="tag" th:if="${c.location}"><i class="bi bi-geo-alt"></i><th:block th:text="${c.location}">City</th:block></span>
+                            <span class="tag" th:if="${c.companySize}"><i class="bi bi-people"></i><th:block th:text="${c.companySize}">1000+</th:block></span>
+                        </div>
+                        <div class="foot">
+                            <span th:if="${c.openJobsCount > 0}" class="fw-semibold text-success">
+                                <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>
+                                <th:block th:text="${c.openJobsCount + (c.openJobsCount == 1 ? ' open role' : ' open roles')}">4 open roles</th:block>
+                            </span>
+                            <span th:unless="${c.openJobsCount > 0}" class="text-muted">No open roles</span>
+                            <span class="text-brand fw-semibold">View <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                    </article>
                 </div>
-            </a>
+            </div>
+
+            <div id="company-empty" class="card-x d-none">
+                <div class="empty-state">
+                    <div class="ico"><i class="bi bi-buildings"></i></div>
+                    <h3>No companies found</h3>
+                    <p>Try a different name or clear the industry filter.</p>
+                </div>
+            </div>
         </div>
-        <div class="col-12 text-center py-5" th:if="${companies == null or companies.isEmpty()}">
-            <i class="bi bi-buildings display-1 text-muted opacity-25 mb-3"></i>
-            <h5 class="fw-bold text-muted">No companies found</h5>
-            <p class="text-muted">Check back later for new company listings.</p>
-        </div>
-    </div>
-</div>
+    </section>
+</main>
 
 <footer th:replace="fragments/footer :: footer"></footer>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script>
+    (function () {
+        const cols = Array.from(document.querySelectorAll('.company-col'));
+        const search = document.getElementById('company-search');
+        const hiring = document.getElementById('hiring-only');
+        const filterBox = document.getElementById('industry-filter');
+
+        const industries = Array.from(new Set(cols.map(c => c.dataset.industry).filter(Boolean))).sort();
+        industries.forEach((ind, i) => {
+            filterBox.insertAdjacentHTML('beforeend',
+                '<input type="radio" name="industry" id="ind-' + i + '" value="' + JC.esc(ind) + '"><label for="ind-' + i + '">' + JC.esc(ind) + '</label>');
+        });
+
+        function apply() {
+            const q = search.value.trim().toLowerCase();
+            const ind = (document.querySelector('input[name="industry"]:checked') || {}).value || '';
+            let shown = 0;
+            cols.forEach(c => {
+                const matchQ = !q || c.dataset.name.includes(q) || (c.dataset.industry || '').toLowerCase().includes(q) || (c.dataset.location || '').includes(q);
+                const matchInd = !ind || c.dataset.industry === ind;
+                const matchHiring = !hiring.checked || parseInt(c.dataset.jobs, 10) > 0;
+                const visible = matchQ && matchInd && matchHiring;
+                c.classList.toggle('d-none', !visible);
+                if (visible) shown++;
+            });
+            document.getElementById('company-empty').classList.toggle('d-none', shown > 0);
+        }
+
+        search.addEventListener('input', apply);
+        hiring.addEventListener('change', apply);
+        filterBox.addEventListener('change', apply);
+    })();
+</script>
 </body>
 </html>

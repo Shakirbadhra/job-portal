@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--/* Company logo: renders the uploaded logo when present, otherwise a coloured monogram.
+       The colour formula (name length % 8) matches JC.monoClass() in app.js. */-->
+<span th:fragment="logo(name, url, size)"
+      th:class="|co-logo sz-${size} mono-${name != null ? #strings.length(name) % 8 : 0}|"
+      th:attr="data-initial=${name != null and !#strings.isEmpty(name) ? #strings.toUpperCase(#strings.substring(name,0,1)) : '?'}">
+    <img th:if="${url != null and !#strings.isEmpty(url)}" th:src="${url}" th:alt="${name + ' logo'}" loading="lazy" onerror="JC.logoFallback(this)">
+    <th:block th:if="${url == null or #strings.isEmpty(url)}"
+              th:text="${name != null and !#strings.isEmpty(name) ? #strings.toUpperCase(#strings.substring(name,0,1)) : '?'}">A</th:block>
+</span>
+
+<!--/* Formats a salary range as "$120k – $160k" */-->
+<th:block th:fragment="salary(min, max)"
+          th:text="${min == null and max == null ? 'Salary not disclosed'
+                   : (max == null ? 'From $' + #numbers.formatInteger(min / 1000, 1) + 'k'
+                   : (min == null ? 'Up to $' + #numbers.formatInteger(max / 1000, 1) + 'k'
+                   : '$' + #numbers.formatInteger(min / 1000, 1) + 'k – $' + #numbers.formatInteger(max / 1000, 1) + 'k'))}">$120k – $160k</th:block>
+
+<!--/* Job card (grid layout) — mirrors JC.jobCard(job, {grid:true}) */-->
+<div th:fragment="jobCardGrid(job)" class="job-card is-grid" th:classappend="${job.featured} ? 'is-featured'">
+    <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+        <span th:replace="fragments/ui :: logo(${job.companyName}, ${job.companyLogoUrl}, 'md')"></span>
+        <div class="actions d-flex gap-2 align-items-center">
+            <span th:if="${job.featured}" class="pill pill-featured"><i class="bi bi-star-fill"></i>Featured</span>
+            <button type="button" class="bookmark-btn" th:classappend="${job.saved} ? 'saved'"
+                    th:attr="onclick=|JC.toggleSave(${job.id}, this)|,aria-label=${job.saved ? 'Remove from saved jobs' : 'Save job'}">
+                <i class="bi" th:classappend="${job.saved} ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
+            </button>
+        </div>
+    </div>
+    <div class="company mb-1" th:text="${job.companyName}">Company</div>
+    <h3 class="job-title"><a th:href="@{/jobs/{id}(id=${job.id})}" th:text="${job.title}">Job title</a></h3>
+    <div class="meta">
+        <span class="tag"><i class="bi bi-geo-alt"></i><th:block th:text="${job.location}">Location</th:block></span>
+        <span class="tag"><i class="bi bi-briefcase"></i><th:block th:text="${job.employmentType}">Full Time</th:block></span>
+        <span class="tag"><i class="bi bi-buildings"></i><th:block th:text="${job.workplaceType}">Remote</th:block></span>
+    </div>
+    <div class="d-flex flex-wrap gap-xs mt-3">
+        <span class="tag tag-outline" th:each="s, st : ${job.skills}" th:if="${st.index < 3}" th:text="${s}">Skill</span>
+    </div>
+    <div class="job-foot">
+        <span class="salary" th:insert="fragments/ui :: salary(${job.minSalary}, ${job.maxSalary})"></span>
+        <span class="posted">
+            <span th:if="${job.hasApplied}" class="pill pill-selected">Applied</span>
+            <th:block th:unless="${job.hasApplied}" th:text="${job.postedTimeAgo}">2d ago</th:block>
+        </span>
+    </div>
+</div>
+
+<!--/* Job card (list layout) — mirrors JC.jobCard(job) */-->
+<div th:fragment="jobCardRow(job)" class="job-card" th:classappend="${job.featured} ? 'is-featured'">
+    <span th:replace="fragments/ui :: logo(${job.companyName}, ${job.companyLogoUrl}, 'md')"></span>
+    <div class="flex-grow-1 min-w-0">
+        <div class="d-flex justify-content-between gap-3">
+            <div class="min-w-0">
+                <h3 class="job-title"><a th:href="@{/jobs/{id}(id=${job.id})}" th:text="${job.title}">Job title</a></h3>
+                <div class="company"><th:block th:text="${job.companyName}">Company</th:block>
+                    <span class="text-muted">·</span> <span class="text-muted" th:text="${job.experienceLevel}">Mid level</span></div>
+            </div>
+            <div class="actions">
+                <button type="button" class="bookmark-btn" th:classappend="${job.saved} ? 'saved'"
+                        th:attr="onclick=|JC.toggleSave(${job.id}, this)|,aria-label=${job.saved ? 'Remove from saved jobs' : 'Save job'}">
+                    <i class="bi" th:classappend="${job.saved} ? 'bi-bookmark-fill' : 'bi-bookmark'"></i>
+                </button>
+            </div>
+        </div>
+        <div class="meta">
+            <span class="tag"><i class="bi bi-geo-alt"></i><th:block th:text="${job.location}">Location</th:block></span>
+            <span class="tag"><i class="bi bi-briefcase"></i><th:block th:text="${job.employmentType}">Full Time</th:block></span>
+            <span class="tag"><i class="bi bi-buildings"></i><th:block th:text="${job.workplaceType}">Remote</th:block></span>
+        </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+            <span class="salary" th:insert="fragments/ui :: salary(${job.minSalary}, ${job.maxSalary})"></span>
+            <span class="posted" th:text="${job.postedTimeAgo}">2d ago</span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -12,7 +12,8 @@ import com.jobportal.exception.UnauthorizedException;
 import com.jobportal.repository.*;
 import com.jobportal.repository.specification.JobSpecification;
 import com.jobportal.service.JobService;
-import org.springframework.context.annotation.Lazy;
+import com.jobportal.entity.enums.RoleName;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,9 @@ public class JobServiceImpl implements JobService {
     private final ApplicationRepository applicationRepository;
     private final SavedJobRepository savedJobRepository;
     private final JobSeekerRepository jobSeekerRepository;
+
+    @Value("${jobportal.jobs.require-approval:false}")
+    private boolean requireApproval;
 
     public JobServiceImpl(JobRepository jobRepository,
                           SkillRepository skillRepository,
@@ -55,6 +59,15 @@ public class JobServiceImpl implements JobService {
     @Override
     public JobDetailDto getJobDetails(Long id, User currentUser) {
         Job job = getJobEntity(id);
+        // Pending / rejected postings are only visible to their recruiter and to admins
+        if (job.getStatus() == JobStatus.PENDING || job.getStatus() == JobStatus.REJECTED) {
+            boolean isAdmin = currentUser != null && currentUser.getRole().getName() == RoleName.ROLE_ADMIN;
+            boolean isOwner = currentUser != null && job.getRecruiter() != null
+                    && job.getRecruiter().getUser().getId().equals(currentUser.getId());
+            if (!isAdmin && !isOwner) {
+                throw new ResourceNotFoundException("Job not found with id: " + id);
+            }
+        }
         // Increment views count
         job.setViewsCount(job.getViewsCount() + 1);
         jobRepository.save(job);
@@ -95,7 +108,7 @@ public class JobServiceImpl implements JobService {
         job.setRecruiter(recruiter);
         job.setCompany(recruiter.getCompany());
         applyJobData(job, request);
-        job.setStatus(JobStatus.APPROVED); // Default approved or pending
+        job.setStatus(requireApproval ? JobStatus.PENDING : JobStatus.APPROVED);
 
         job = jobRepository.save(job);
         return mapToDetailDto(job, recruiter.getUser());
@@ -131,7 +144,8 @@ public class JobServiceImpl implements JobService {
     @Override
     @Transactional(readOnly = true)
     public Page<JobSummaryDto> getRecruiterJobs(Recruiter recruiter, Pageable pageable) {
-        Page<Job> jobs = jobRepository.findByRecruiter(recruiter, pageable);
+        Pageable sorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Job> jobs = jobRepository.findByRecruiter(recruiter, sorted);
         return jobs.map(j -> mapToSummaryDto(j, recruiter.getUser()));
     }
 
@@ -192,6 +206,58 @@ public class JobServiceImpl implements JobService {
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found with id: " + jobId));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public JobDetailDto getJobForRecruiter(Long jobId, Recruiter recruiter) {
+        Job job = getJobEntity(jobId);
+        if (!job.getRecruiter().getId().equals(recruiter.getId())) {
+            throw new UnauthorizedException("You can only manage your own posted jobs");
+        }
+        return mapToDetailDto(job, null);
+    }
+
+    @Override
+    public JobSummaryDto updateJobStatus(Long jobId, JobStatus status, Recruiter recruiter) {
+        Job job = getJobEntity(jobId);
+        if (!job.getRecruiter().getId().equals(recruiter.getId())) {
+            throw new UnauthorizedException("You can only manage your own posted jobs");
+        }
+        if (status == JobStatus.CLOSED) {
+            if (job.getStatus() != JobStatus.APPROVED) {
+                throw new BadRequestException("Only active jobs can be closed");
+            }
+            job.setStatus(JobStatus.CLOSED);
+        } else if (status == JobStatus.APPROVED) {
+            if (job.getStatus() != JobStatus.CLOSED) {
+                throw new BadRequestException("Only closed jobs can be reopened");
+            }
+            job.setStatus(requireApproval ? JobStatus.PENDING : JobStatus.APPROVED);
+        } else {
+            throw new BadRequestException("Recruiters can only close or reopen a job");
+        }
+        return mapToSummaryDto(jobRepository.save(job), null);
+    }
+
+    @Override
+    public boolean toggleFeatured(Long jobId) {
+        Job job = getJobEntity(jobId);
+        job.setFeatured(!job.isFeatured());
+        jobRepository.save(job);
+        return job.isFeatured();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Long> getCategoryCounts() {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        for (Object[] row : jobRepository.countJobsByCategory(JobStatus.APPROVED)) {
+            if (row[0] != null) {
+                counts.put(row[0].toString(), ((Number) row[1]).longValue());
+            }
+        }
+        return counts;
+    }
+
     private void applyJobData(Job job, JobCreateUpdateRequest req) {
         job.setTitle(req.getTitle().trim());
         job.setJobCategory(req.getJobCategory().trim());
@@ -246,6 +312,11 @@ public class JobServiceImpl implements JobService {
         dto.setFeatured(job.isFeatured());
         dto.setPostedTimeAgo(formatTimeAgo(job.getCreatedAt()));
         dto.setSkills(job.getSkills().stream().map(Skill::getName).collect(Collectors.toList()));
+        dto.setStatus(job.getStatus().name());
+        dto.setStatusDisplayName(job.getStatus().getDisplayName());
+        dto.setApplicationCount((long) job.getApplications().size());
+        dto.setViewsCount(job.getViewsCount());
+        dto.setDeadline(job.getDeadline());
 
         if (currentUser != null) {
             jobSeekerRepository.findByUserId(currentUser.getId()).ifPresent(seeker -> {

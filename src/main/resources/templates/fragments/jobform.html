@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<form th:fragment="form(submitLabel)" id="job-form" class="row g-4" novalidate>
+    <div class="col-lg-8">
+        <div class="card-x mb-4">
+            <div class="card-x-header"><h2>Role basics</h2></div>
+            <div class="card-x-body row g-3">
+                <div class="col-12"><label class="form-label required" for="title">Job title</label><input id="title" class="form-control" maxlength="150" required placeholder="e.g. Senior Backend Engineer"></div>
+                <div class="col-md-6"><label class="form-label required" for="jobCategory">Category</label>
+                    <input id="jobCategory" class="form-control" list="category-list" required placeholder="e.g. Software Engineering">
+                    <datalist id="category-list"><option th:each="c : ${categories}" th:value="${c}"></option></datalist></div>
+                <div class="col-md-6"><label class="form-label required" for="location">Location</label><input id="location" class="form-control" required placeholder="City, State or Remote"></div>
+                <div class="col-md-4"><label class="form-label required" for="employmentType">Job type</label>
+                    <select id="employmentType" class="form-select" required><option value="">Select…</option><option value="FULL_TIME">Full-time</option><option value="PART_TIME">Part-time</option><option value="CONTRACT">Contract</option><option value="INTERNSHIP">Internship</option></select></div>
+                <div class="col-md-4"><label class="form-label required" for="workplaceType">Workplace</label>
+                    <select id="workplaceType" class="form-select" required><option value="">Select…</option><option value="ONSITE">On-site</option><option value="HYBRID">Hybrid</option><option value="REMOTE">Remote</option></select></div>
+                <div class="col-md-4"><label class="form-label required" for="experienceLevel">Seniority</label>
+                    <select id="experienceLevel" class="form-select" required><option value="">Select…</option><option value="FRESHER">Entry level</option><option value="JUNIOR">Junior</option><option value="MID_LEVEL">Mid level</option><option value="EXPERIENCED">Experienced</option><option value="SENIOR">Senior</option></select></div>
+                <div class="col-12"><label class="form-label">Skills</label><div class="skill-editor" id="skills"><input placeholder="Type a skill and press Enter" aria-label="Add skill"></div></div>
+            </div>
+        </div>
+        <div class="card-x">
+            <div class="card-x-header"><h2>Description</h2><span class="small text-muted">Start lines with “- ” to create bullet points</span></div>
+            <div class="card-x-body row g-3">
+                <div class="col-12"><label class="form-label required" for="description">About the role</label><textarea id="description" rows="5" class="form-control" required></textarea></div>
+                <div class="col-12"><label class="form-label" for="responsibilities">Responsibilities</label><textarea id="responsibilities" rows="4" class="form-control" placeholder="- Design and build…"></textarea></div>
+                <div class="col-12"><label class="form-label" for="requirements">Requirements</label><textarea id="requirements" rows="4" class="form-control" placeholder="- 3+ years of…"></textarea></div>
+                <div class="col-12"><label class="form-label" for="benefits">Benefits</label><textarea id="benefits" rows="3" class="form-control" placeholder="- Health insurance…"></textarea></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-x sticky-aside">
+            <div class="card-x-header"><h2>Compensation &amp; timing</h2></div>
+            <div class="card-x-body row g-3">
+                <div class="col-6"><label class="form-label" for="minSalary">Min salary ($)</label><input id="minSalary" type="number" min="1" step="1000" class="form-control"></div>
+                <div class="col-6"><label class="form-label" for="maxSalary">Max salary ($)</label><input id="maxSalary" type="number" min="1" step="1000" class="form-control"></div>
+                <div class="col-6"><label class="form-label" for="minExperienceYears">Min years</label><input id="minExperienceYears" type="number" min="0" class="form-control" value="0"></div>
+                <div class="col-6"><label class="form-label" for="maxExperienceYears">Max years</label><input id="maxExperienceYears" type="number" min="0" class="form-control"></div>
+                <div class="col-12"><label class="form-label" for="deadline">Application deadline</label><input id="deadline" type="date" class="form-control"></div>
+                <div class="col-12"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="isFeatured"><label class="form-check-label" for="isFeatured">Feature this job</label></div></div>
+            </div>
+            <div class="card-x-footer d-flex gap-2">
+                <a th:href="@{/recruiter/manage-jobs}" class="btn btn-outline">Cancel</a>
+                <button type="submit" id="btn-save-job" class="btn btn-primary flex-grow-1" th:text="${submitLabel}">Publish</button>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>

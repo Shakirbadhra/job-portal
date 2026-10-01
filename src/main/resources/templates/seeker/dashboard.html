@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Dashboard')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Dashboard')"></header>
+        <main class="app-content">
+            <div class="page-head">
+                <div>
+                    <h1 th:text="${'Welcome back, ' + #strings.arraySplit(currentUser.fullName, ' ')[0]}">Welcome back</h1>
+                    <p>Here's what's happening with your job search today.</p>
+                </div>
+                <a th:href="@{/jobs}" class="btn btn-primary"><i class="bi bi-search me-2"></i>Find jobs</a>
+            </div>
+
+            <!-- KPIs -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-xl-3">
+                    <div class="kpi">
+                        <div class="kpi-top"><span class="kpi-label">Applications</span><span class="kpi-ico ico-brand"><i class="bi bi-send"></i></span></div>
+                        <div class="kpi-value" th:text="${stats.seekerTotalApplications}">4</div>
+                        <div class="kpi-foot">Total submitted</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="kpi">
+                        <div class="kpi-top"><span class="kpi-label">In review</span><span class="kpi-ico ico-info"><i class="bi bi-hourglass-split"></i></span></div>
+                        <div class="kpi-value" th:text="${stats.seekerUnderReview}">1</div>
+                        <div class="kpi-foot">Being reviewed by recruiters</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="kpi">
+                        <div class="kpi-top"><span class="kpi-label">Shortlisted</span><span class="kpi-ico ico-success"><i class="bi bi-stars"></i></span></div>
+                        <div class="kpi-value" th:text="${stats.seekerShortlisted}">1</div>
+                        <div class="kpi-foot">Moving forward</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="kpi">
+                        <div class="kpi-top"><span class="kpi-label">Saved jobs</span><span class="kpi-ico ico-violet"><i class="bi bi-bookmark"></i></span></div>
+                        <div class="kpi-value" th:text="${stats.seekerSavedJobs}">3</div>
+                        <div class="kpi-foot"><a th:href="@{/seeker/saved-jobs}">View saved list</a></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-xl-8">
+                    <div class="card-x mb-4">
+                        <div class="card-x-header">
+                            <h2>Recent applications</h2>
+                            <a th:href="@{/seeker/applied-jobs}" class="small fw-semibold">View all</a>
+                        </div>
+                        <div id="recent-applications"><div class="p-4">
+                            <div class="skeleton mb-3" style="height:18px;width:60%"></div>
+                            <div class="skeleton mb-3" style="height:18px;width:45%"></div>
+                            <div class="skeleton" style="height:18px;width:52%"></div>
+                        </div></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Recommended for you</h2>
+                        <a th:href="@{/seeker/profile}" class="small fw-semibold">Improve matches</a>
+                    </div>
+                    <div class="d-flex flex-column gap-3" th:if="${!#lists.isEmpty(recommendedJobs)}">
+                        <th:block th:each="job : ${recommendedJobs}">
+                            <div th:replace="fragments/ui :: jobCardRow(${job})"></div>
+                        </th:block>
+                    </div>
+                    <div th:if="${#lists.isEmpty(recommendedJobs)}" class="card-x">
+                        <div class="empty-state">
+                            <div class="ico"><i class="bi bi-magic"></i></div>
+                            <h3>No recommendations yet</h3>
+                            <p>Add skills to your profile and we'll match you with relevant roles.</p>
+                            <a th:href="@{/seeker/profile}" class="btn btn-outline">Add skills</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4">
+                    <div class="card-x card-x-body mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="h6 mb-0">Profile strength</h2>
+                            <span class="fw-bold text-ink" id="profile-pct">0%</span>
+                        </div>
+                        <div class="progress-x mb-3"><div class="bar" id="profile-bar" style="width:0"></div></div>
+                        <ul class="list-unstyled small mb-3 d-flex flex-column gap-2" id="profile-checklist"></ul>
+                        <a th:href="@{/seeker/profile}" class="btn btn-outline w-100">Complete profile</a>
+                    </div>
+
+                    <div class="card-x mb-4">
+                        <div class="card-x-header"><h2>Quick actions</h2></div>
+                        <a th:href="@{/seeker/resumes}" class="list-row text-decoration-none">
+                            <span class="kpi-ico ico-brand" style="width:36px;height:36px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-file-earmark-arrow-up"></i></span>
+                            <span class="flex-grow-1"><span class="d-block fw-semibold text-ink small">Upload a resume</span><span class="d-block small text-muted">PDF or Word, up to 10 MB</span></span>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </a>
+                        <a th:href="@{/jobs(workplaceType='REMOTE')}" class="list-row text-decoration-none">
+                            <span class="kpi-ico ico-success" style="width:36px;height:36px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-house-heart"></i></span>
+                            <span class="flex-grow-1"><span class="d-block fw-semibold text-ink small">Browse remote roles</span><span class="d-block small text-muted">Work from anywhere</span></span>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </a>
+                        <a th:href="@{/companies}" class="list-row text-decoration-none">
+                            <span class="kpi-ico ico-violet" style="width:36px;height:36px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center"><i class="bi bi-buildings"></i></span>
+                            <span class="flex-grow-1"><span class="d-block fw-semibold text-ink small">Explore companies</span><span class="d-block small text-muted">See who's hiring</span></span>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </a>
+                    </div>
+
+                    <div class="card-x card-x-body" style="background:linear-gradient(140deg,#eef3ff,#fff)">
+                        <div class="feature-ico mb-2"><i class="bi bi-lightbulb"></i></div>
+                        <h2 class="h6">Tip: tailor your cover letter</h2>
+                        <p class="small text-muted mb-0">Applications with a short, role-specific cover letter are shortlisted noticeably more often. Mention one or two skills from the job description.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:inline="javascript">
+    window.PROFILE = /*[[${profile}]]*/ {};
+</script>
+<script th:src="@{/js/dashboards.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Dash.renderProfileStrength(window.PROFILE);
+        Dash.loadRecentApplications(document.getElementById('recent-applications'), 5);
+    });
+</script>
+</body>
+</html>

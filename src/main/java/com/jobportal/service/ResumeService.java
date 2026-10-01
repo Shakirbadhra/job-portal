@@ -15,4 +15,7 @@ public interface ResumeService {
     void deleteResume(Long resumeId, JobSeeker seeker);
     Resource loadResumeResource(Long resumeId);
     Resume getResumeEntity(Long resumeId);
+
+    /** A resume is visible to its owner, to admins, and to recruiters who received an application with it. */
+    boolean canAccessResume(Long resumeId, com.jobportal.entity.User user);
 }

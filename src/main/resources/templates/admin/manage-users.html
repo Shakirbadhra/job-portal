@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Users')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Users')"></header>
+        <main class="app-content">
+            <div class="page-head"><div><h1>Users</h1><p>Search accounts and enable or disable access.</p></div></div>
+            <div class="card-x">
+                <div class="card-x-header flex-wrap">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <div class="input-icon"><i class="bi bi-search"></i><input id="user-search" class="form-control form-control-sm" placeholder="Search name or email" aria-label="Search users"></div>
+                        <select id="role-filter" class="form-select form-select-sm" style="width:auto" aria-label="Filter by role">
+                            <option value="">All roles</option><option value="ROLE_JOB_SEEKER">Candidates</option><option value="ROLE_RECRUITER">Recruiters</option><option value="ROLE_ADMIN">Admins</option>
+                        </select>
+                    </div>
+                    <span class="small text-muted" id="user-count"></span>
+                </div>
+                <div class="table-responsive"><table class="table table-x">
+                    <thead><tr><th>User</th><th>Role</th><th>Company / headline</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+                    <tbody id="users-body"></tbody>
+                </table></div>
+            </div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script>Dash.adminUsers();</script>
+</body>
+</html>

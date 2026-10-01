@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Applicants')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Applicants')"></header>
+        <main class="app-content">
+            <div class="page-head"><div><h1>Applicants</h1><p>Review candidates and move them through your pipeline.</p></div></div>
+            <div class="card-x">
+                <div class="card-x-header">
+                    <label for="job-filter" class="visually-hidden">Filter by job</label>
+                    <select id="job-filter" class="form-select form-select-sm" style="max-width:340px"><option value="">All job posts</option></select>
+                </div>
+                <div class="table-responsive"><table class="table table-x">
+                    <thead><tr><th>Candidate</th><th>Job</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+                    <tbody id="app-body"></tbody>
+                </table></div>
+            </div>
+            <div id="app-pag" class="mt-4"></div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script>Dash.recruiterApplicants();</script>
+</body>
+</html>

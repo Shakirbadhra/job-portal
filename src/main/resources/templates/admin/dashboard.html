@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Admin dashboard')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Dashboard')"></header>
+        <main class="app-content">
+            <div class="page-head">
+                <div><h1>Platform overview</h1><p>Key metrics across users, jobs and applications.</p></div>
+                <a th:href="@{/admin/manage-jobs(status='PENDING')}" class="btn btn-primary">
+                    <i class="bi bi-hourglass-split me-2"></i>Review pending jobs <span class="badge bg-white text-dark ms-1" th:text="${stats.adminPendingJobs}">0</span>
+                </a>
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-xl-3"><div class="kpi"><div class="kpi-top"><span class="kpi-label">Users</span><span class="kpi-ico ico-brand"><i class="bi bi-people"></i></span></div><div class="kpi-value" th:text="${stats.adminTotalUsers}">0</div><div class="kpi-foot" th:text="${stats.adminTotalSeekers + ' candidates · ' + stats.adminTotalRecruiters + ' recruiters'}">x</div></div></div>
+                <div class="col-6 col-xl-3"><div class="kpi"><div class="kpi-top"><span class="kpi-label">Active jobs</span><span class="kpi-ico ico-success"><i class="bi bi-briefcase"></i></span></div><div class="kpi-value" th:text="${stats.adminActiveJobs}">0</div><div class="kpi-foot" th:text="${stats.adminTotalJobs + ' total postings'}">x</div></div></div>
+                <div class="col-6 col-xl-3"><div class="kpi"><div class="kpi-top"><span class="kpi-label">Pending approval</span><span class="kpi-ico ico-warning"><i class="bi bi-hourglass-split"></i></span></div><div class="kpi-value" th:text="${stats.adminPendingJobs}">0</div><div class="kpi-foot"><a th:href="@{/admin/manage-jobs(status='PENDING')}">Open moderation queue</a></div></div></div>
+                <div class="col-6 col-xl-3"><div class="kpi"><div class="kpi-top"><span class="kpi-label">Applications</span><span class="kpi-ico ico-violet"><i class="bi bi-card-checklist"></i></span></div><div class="kpi-value" th:text="${stats.adminTotalApplications}">0</div><div class="kpi-foot">All time</div></div></div>
+            </div>
+            <div class="row g-4">
+                <div class="col-xl-5"><div class="card-x"><div class="card-x-header"><h2>Applications by stage</h2></div><div class="card-x-body"><div class="chart-box"><canvas id="chart-status" aria-label="Applications by stage"></canvas></div></div></div></div>
+                <div class="col-xl-7"><div class="card-x"><div class="card-x-header"><h2>Active jobs by category</h2></div><div class="card-x-body"><div class="chart-box"><canvas id="chart-category" aria-label="Active jobs by category"></canvas></div></div></div></div>
+            </div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script th:inline="javascript">Dash.adminCharts(/*[[${stats}]]*/ {});</script>
+</body>
+</html>

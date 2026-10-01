@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head(${app.seekerName})"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Applicant')"></header>
+        <main class="app-content">
+            <a th:href="@{/recruiter/applicants}" class="small d-inline-block mb-3"><i class="bi bi-arrow-left me-1"></i>All applicants</a>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card-x card-x-body mb-4">
+                        <div class="d-flex gap-3 align-items-center flex-wrap">
+                            <span class="avatar avatar-lg" th:text="${#strings.substring(app.seekerName,0,1)}">A</span>
+                            <div class="flex-grow-1">
+                                <h1 class="h4 mb-0" th:text="${app.seekerName}">Name</h1>
+                                <div class="text-muted" th:text="${app.seekerHeadline}">Headline</div>
+                            </div>
+                            <span th:class="|pill pill-${#strings.toLowerCase(app.status)}|" th:text="${app.statusDisplayName}">Status</span>
+                        </div>
+                        <div class="info-grid mt-4">
+                            <div class="cell"><div class="k">Email</div><div class="v text-truncate"><a th:href="|mailto:${app.seekerEmail}|" th:text="${app.seekerEmail}">email</a></div></div>
+                            <div class="cell"><div class="k">Phone</div><div class="v" th:text="${app.seekerPhone ?: '—'}">phone</div></div>
+                            <div class="cell"><div class="k">Experience</div><div class="v" th:text="${app.seekerExperience != null ? app.seekerExperience + ' years' : '—'}">3 years</div></div>
+                            <div class="cell"><div class="k">Education</div><div class="v" th:text="${app.seekerQualification ?: '—'}">B.S.</div></div>
+                        </div>
+                    </div>
+                    <div class="card-x card-x-body mb-4">
+                        <h2 class="h6 mb-1">Applied for <a th:href="@{/jobs/{id}(id=${app.jobId})}" th:text="${app.jobTitle}">Job</a></h2>
+                        <div class="small text-muted mb-3" th:text="${'Submitted ' + #temporals.format(app.appliedAt,'MMM d, yyyy h:mm a')}">date</div>
+                        <div class="small-caps mb-2">Cover letter</div>
+                        <div class="prose" data-format th:text="${app.coverLetter ?: 'No cover letter provided.'}">Letter</div>
+                    </div>
+                    <div class="card-x" th:if="${app.resumeId}">
+                        <div class="card-x-header">
+                            <h2 class="text-truncate" th:text="${app.resumeFilename}">resume.pdf</h2>
+                            <a class="btn btn-outline btn-sm" th:href="@{/api/resumes/download/{id}(id=${app.resumeId})}"><i class="bi bi-download me-1"></i>Download</a>
+                        </div>
+                        <iframe th:src="@{/api/resumes/download/{id}(id=${app.resumeId},inline=true)}" style="width:100%;height:600px;border:0;border-radius:0 0 16px 16px" title="Resume preview"></iframe>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <form class="card-x sticky-aside" id="status-form">
+                        <div class="card-x-header"><h2>Update status</h2></div>
+                        <div class="card-x-body">
+                            <div id="track" class="mb-4"></div>
+                            <label class="form-label" for="status">Stage</label>
+                            <select id="status" class="form-select mb-3">
+                                <option value="APPLIED">Applied</option><option value="UNDER_REVIEW">Under review</option>
+                                <option value="SHORTLISTED">Shortlisted</option><option value="INTERVIEW">Interview</option>
+                                <option value="SELECTED">Hired</option><option value="REJECTED">Not selected</option>
+                            </select>
+                            <label class="form-label" for="notes">Notes for the candidate</label>
+                            <textarea id="notes" class="form-control" rows="4" th:text="${app.recruiterNotes}"></textarea>
+                            <div class="form-text">Candidates see these notes on their applications page.</div>
+                        </div>
+                        <div class="card-x-footer"><button class="btn btn-primary w-100">Save update</button></div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script th:inline="javascript">Dash.applicantDetail(/*[[${app.id}]]*/ 0, /*[[${app.status}]]*/ 'APPLIED');</script>
+</body>
+</html>

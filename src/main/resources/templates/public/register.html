@@ -1,186 +1,198 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: html-head('Create Account')"></head>
-<body class="bg-light">
+<head th:replace="fragments/header :: html-head('Create account')"></head>
+<body class="bg-surface">
+
 <nav th:replace="fragments/header :: navbar"></nav>
 
-<div class="py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="bg-white shadow-lg rounded-4 p-4 p-lg-5">
-                    <div class="text-center mb-4">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-primary rounded-circle text-white mb-3"
-                             style="width: 60px; height: 60px; font-size: 1.5rem;">
-                            <i class="bi bi-person-plus-fill"></i>
-                        </div>
-                        <h2 class="fw-bold mb-1">Create Your Account</h2>
-                        <p class="text-muted">Join thousands of professionals on JobConnect</p>
-                    </div>
-
-                    <div id="register-error" class="alert alert-danger border-0 rounded-3 d-none" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i><span id="error-msg">Error</span>
-                    </div>
-                    <div id="register-success" class="alert alert-success border-0 rounded-3 d-none" role="alert">
-                        <i class="bi bi-check-circle-fill me-2"></i>Account created successfully! <a th:href="@{/login}" class="fw-bold">Sign in now →</a>
-                    </div>
-
-                    <form id="register-form">
-                        <!-- Role Selection Tabs -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small">I want to:</label>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <input type="radio" class="btn-check" name="role" id="role-seeker" value="JOB_SEEKER" checked>
-                                    <label class="btn btn-outline-primary w-100 py-3 fw-bold" for="role-seeker">
-                                        <i class="bi bi-search d-block fs-4 mb-1"></i>
-                                        Find a Job
-                                    </label>
-                                </div>
-                                <div class="col-6">
-                                    <input type="radio" class="btn-check" name="role" id="role-recruiter" value="RECRUITER">
-                                    <label class="btn btn-outline-primary w-100 py-3 fw-bold" for="role-recruiter">
-                                        <i class="bi bi-building d-block fs-4 mb-1"></i>
-                                        Hire Talent
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="fullName" class="form-label fw-semibold small">Full Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="fullName" name="fullName" placeholder="John Doe" required minlength="2">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="john@email.com" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="phone" class="form-label fw-semibold small">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="+1 (555) 000-0000">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="password" class="form-label fw-semibold small">Password <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" name="password"
-                                       placeholder="At least 6 characters" required minlength="6">
-                                <button class="btn btn-outline-secondary" type="button"
-                                        onclick="const p = document.getElementById('password'); p.type = p.type === 'password' ? 'text' : 'password';">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Recruiter Extra Fields -->
-                        <div id="recruiter-fields" class="d-none">
-                            <hr class="my-3">
-                            <p class="fw-semibold small text-muted mb-3">Company Details (Optional)</p>
-                            <div class="mb-3">
-                                <label for="companyName" class="form-label fw-semibold small">Company Name</label>
-                                <input type="text" class="form-control" id="companyName" name="companyName" placeholder="Acme Inc.">
-                            </div>
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <label for="companyIndustry" class="form-label fw-semibold small">Industry</label>
-                                    <input type="text" class="form-control" id="companyIndustry" name="companyIndustry" placeholder="Technology, Finance...">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="companyWebsite" class="form-label fw-semibold small">Website</label>
-                                    <input type="url" class="form-control" id="companyWebsite" name="companyWebsite" placeholder="https://company.com">
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <label for="designation" class="form-label fw-semibold small">Your Designation</label>
-                                <input type="text" class="form-control" id="designation" name="designation" placeholder="e.g. Talent Acquisition Manager">
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold fs-6 mt-4" id="btn-register">
-                            <i class="bi bi-person-check me-2"></i>Create Account
-                        </button>
-
-                        <p class="text-center small text-muted mt-3">
-                            By registering you agree to our <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>.
-                        </p>
-                    </form>
-
-                    <p class="text-center mt-3 small">
-                        Already have an account? <a th:href="@{/login}" class="text-primary fw-semibold">Sign In</a>
-                    </p>
-                </div>
-            </div>
+<main class="auth-wrap">
+    <aside class="auth-aside">
+        <div>
+            <div class="section-eyebrow" style="color:#8fb0ff">Join JobConnect</div>
+            <h2>One account for your entire job search — or your entire hiring team.</h2>
         </div>
-    </div>
-</div>
+        <ul class="check-list" style="max-width:420px">
+            <li style="color:#c9d3ea"><i class="bi bi-check-circle-fill"></i>Salary ranges on every listing — no surprises</li>
+            <li style="color:#c9d3ea"><i class="bi bi-check-circle-fill"></i>Apply in one click with your saved resume</li>
+            <li style="color:#c9d3ea"><i class="bi bi-check-circle-fill"></i>Live status updates from recruiters</li>
+            <li style="color:#c9d3ea"><i class="bi bi-check-circle-fill"></i>Employers: post jobs and manage applicants free</li>
+        </ul>
+        <div class="small" style="color:#6b7a99">Free forever for candidates. No credit card required.</div>
+    </aside>
 
-<footer th:replace="fragments/footer :: footer"></footer>
+    <section class="auth-main">
+        <div class="auth-card fade-up" style="max-width:480px">
+            <h1 class="mb-1">Create your account</h1>
+            <p class="text-muted mb-4">Already have one? <a th:href="@{/login}" class="fw-semibold">Sign in</a></p>
 
+            <div id="register-error" class="alert-x error mb-3 d-none" role="alert"></div>
+
+            <form id="register-form" novalidate>
+                <div class="form-label">I want to</div>
+                <div class="role-select mb-4">
+                    <div>
+                        <input type="radio" name="role" id="role-seeker" value="JOB_SEEKER" th:checked="${param.role == null or param.role[0] != 'RECRUITER'}">
+                        <label for="role-seeker">
+                            <i class="bi bi-person-workspace"></i>
+                            <span><span class="t d-block">Find a job</span><span class="d">Search, apply and track applications</span></span>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="role" id="role-recruiter" value="RECRUITER" th:checked="${param.role != null and param.role[0] == 'RECRUITER'}">
+                        <label for="role-recruiter">
+                            <i class="bi bi-building"></i>
+                            <span><span class="t d-block">Hire talent</span><span class="d">Post jobs and manage candidates</span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="fullName" class="form-label required">Full name</label>
+                        <input type="text" id="fullName" class="form-control" placeholder="Jane Cooper" required minlength="2" maxlength="100" autocomplete="name">
+                    </div>
+                    <div class="col-md-7">
+                        <label for="email" class="form-label required">Work email</label>
+                        <input type="email" id="email" class="form-control" placeholder="jane@company.com" required autocomplete="email">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="tel" id="phone" class="form-control" placeholder="+1 555 000 0000" autocomplete="tel">
+                    </div>
+                    <div class="col-12">
+                        <label for="password" class="form-label required">Password</label>
+                        <div class="position-relative">
+                            <input type="password" id="password" class="form-control" placeholder="At least 6 characters" required minlength="6" maxlength="50" autocomplete="new-password">
+                            <button type="button" class="pw-toggle" data-toggle-password="password" aria-label="Show password"><i class="bi bi-eye"></i></button>
+                        </div>
+                        <div class="pw-meter"><span id="pw-meter-bar"></span></div>
+                        <div class="form-text" id="pw-hint">Use 8+ characters with a mix of letters, numbers and symbols.</div>
+                    </div>
+                </div>
+
+                <div id="recruiter-fields" class="d-none mt-4 pt-4 border-top">
+                    <div class="small-caps mb-3">Company details</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="companyName" class="form-label required">Company name</label>
+                            <input type="text" id="companyName" class="form-control" placeholder="Acme Inc.">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="designation" class="form-label">Your job title</label>
+                            <input type="text" id="designation" class="form-control" placeholder="Talent Partner">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="companyIndustry" class="form-label">Industry</label>
+                            <input type="text" id="companyIndustry" class="form-control" placeholder="Technology">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="companyWebsite" class="form-label">Website</label>
+                            <input type="url" id="companyWebsite" class="form-control" placeholder="https://acme.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="terms" required>
+                    <label class="form-check-label small text-muted" for="terms">
+                        I agree to the <a th:href="@{/about} + '#terms'" target="_blank">Terms of Service</a> and <a th:href="@{/about} + '#privacy'" target="_blank">Privacy Policy</a>.
+                    </label>
+                </div>
+
+                <button type="submit" id="btn-register" class="btn btn-primary btn-lg w-100 mt-4">Create account</button>
+            </form>
+
+            <!-- Used to sign the new user in straight after registration -->
+            <form id="auto-login" th:action="@{/login}" method="post" class="d-none">
+                <input type="hidden" name="email">
+                <input type="hidden" name="password">
+            </form>
+        </div>
+    </section>
+</main>
+
+<th:block th:replace="fragments/footer :: scripts"></th:block>
 <script>
-    // Toggle recruiter extra fields
-    document.querySelectorAll('input[name="role"]').forEach(radio => {
-        radio.addEventListener('change', () => {
-            const extras = document.getElementById('recruiter-fields');
-            extras.classList.toggle('d-none', radio.value !== 'RECRUITER' || !radio.checked);
-        });
-    });
-    document.querySelector('input[value="RECRUITER"]').addEventListener('change', function() {
-        document.getElementById('recruiter-fields').classList.remove('d-none');
-    });
+    (function () {
+        const $ = id => document.getElementById(id);
+        const recruiterFields = $('recruiter-fields');
+        const errorBox = $('register-error');
 
-    // Registration form submit
-    document.getElementById('register-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btn-register');
-        const errDiv = document.getElementById('register-error');
-        const successDiv = document.getElementById('register-success');
-        errDiv.classList.add('d-none');
-        successDiv.classList.add('d-none');
-
-        const role = document.querySelector('input[name="role"]:checked').value;
-        const payload = {
-            fullName: document.getElementById('fullName').value.trim(),
-            email: document.getElementById('email').value.trim(),
-            password: document.getElementById('password').value,
-            phone: document.getElementById('phone').value.trim(),
-            role: role,
-            companyName: document.getElementById('companyName').value.trim() || null,
-            companyIndustry: document.getElementById('companyIndustry').value.trim() || null,
-            companyWebsite: document.getElementById('companyWebsite').value.trim() || null,
-            designation: document.getElementById('designation').value.trim() || null
-        };
-
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating account...';
-
-        try {
-            const res = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                successDiv.classList.remove('d-none');
-                document.getElementById('register-form').reset();
-                btn.innerHTML = '<i class="bi bi-person-check me-2"></i>Account Created!';
-                setTimeout(() => { window.location.href = '/login'; }, 2000);
-            } else {
-                document.getElementById('error-msg').textContent = data.message || 'Registration failed. Please try again.';
-                errDiv.classList.remove('d-none');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-person-check me-2"></i>Create Account';
-            }
-        } catch (err) {
-            document.getElementById('error-msg').textContent = 'Network error. Please try again.';
-            errDiv.classList.remove('d-none');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-person-check me-2"></i>Create Account';
+        function syncRole() {
+            const isRecruiter = document.querySelector('input[name="role"]:checked').value === 'RECRUITER';
+            recruiterFields.classList.toggle('d-none', !isRecruiter);
+            $('email').placeholder = isRecruiter ? 'jane@company.com' : 'jane@example.com';
         }
-    });
+        document.querySelectorAll('input[name="role"]').forEach(r => r.addEventListener('change', syncRole));
+        syncRole();
+
+        $('password').addEventListener('input', e => {
+            const v = e.target.value;
+            let score = 0;
+            if (v.length >= 6) score++;
+            if (v.length >= 10) score++;
+            if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+            if (/\d/.test(v)) score++;
+            if (/[^A-Za-z0-9]/.test(v)) score++;
+            const levels = [
+                ['0%', '#e6e8ee', 'Use 8+ characters with a mix of letters, numbers and symbols.'],
+                ['25%', '#d33a3a', 'Weak — try adding numbers or symbols.'],
+                ['50%', '#b7791f', 'Fair — a little longer would help.'],
+                ['75%', '#1e4fd6', 'Good password.'],
+                ['100%', '#0e9f6e', 'Strong password.']
+            ];
+            const lvl = levels[Math.min(score, 4)];
+            $('pw-meter-bar').style.width = v ? lvl[0] : '0%';
+            $('pw-meter-bar').style.background = lvl[1];
+            $('pw-hint').textContent = v ? lvl[2] : levels[0][2];
+        });
+
+        function fail(msg, fieldId) {
+            errorBox.innerHTML = '<i class="bi bi-exclamation-octagon"></i><div>' + JC.esc(msg) + '</div>';
+            errorBox.classList.remove('d-none');
+            if (fieldId) { $(fieldId).classList.add('is-invalid'); $(fieldId).focus(); }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.querySelectorAll('#register-form input').forEach(i => i.addEventListener('input', () => i.classList.remove('is-invalid')));
+
+        $('register-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            errorBox.classList.add('d-none');
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const payload = {
+                fullName: $('fullName').value.trim(),
+                email: $('email').value.trim(),
+                password: $('password').value,
+                phone: $('phone').value.trim() || null,
+                role: role,
+                companyName: role === 'RECRUITER' ? ($('companyName').value.trim() || null) : null,
+                companyIndustry: role === 'RECRUITER' ? ($('companyIndustry').value.trim() || null) : null,
+                companyWebsite: role === 'RECRUITER' ? ($('companyWebsite').value.trim() || null) : null,
+                designation: role === 'RECRUITER' ? ($('designation').value.trim() || null) : null
+            };
+
+            if (payload.fullName.length < 2) return fail('Please enter your full name.', 'fullName');
+            if (!/^\S+@\S+\.\S+$/.test(payload.email)) return fail('Please enter a valid email address.', 'email');
+            if (payload.password.length < 6) return fail('Password must be at least 6 characters.', 'password');
+            if (role === 'RECRUITER' && !payload.companyName) return fail('Please enter your company name.', 'companyName');
+            if (!$('terms').checked) return fail('Please accept the Terms of Service to continue.');
+
+            const btn = $('btn-register');
+            JC.setLoading(btn, true, 'Creating your account…');
+            try {
+                await JC.api('/api/auth/register', { method: 'POST', body: payload });
+                JC.setLoading(btn, true, 'Signing you in…');
+                const auto = $('auto-login');
+                auto.querySelector('[name="email"]').value = payload.email;
+                auto.querySelector('[name="password"]').value = payload.password;
+                auto.submit();
+            } catch (err) {
+                JC.setLoading(btn, false);
+                fail(err.message);
+            }
+        });
+    })();
 </script>
 </body>
 </html>

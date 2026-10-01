@@ -2,6 +2,8 @@ package com.jobportal.controller.api;
 
 import com.jobportal.dto.request.ApplicationStatusUpdateRequest;
 import com.jobportal.dto.request.CompanyUpdateRequest;
+import com.jobportal.dto.request.JobStatusUpdateRequest;
+import com.jobportal.entity.enums.JobStatus;
 import com.jobportal.dto.response.ApiResponse;
 import com.jobportal.dto.response.ApplicationResponseDto;
 import com.jobportal.dto.response.CompanyDto;
@@ -67,6 +69,16 @@ public class RecruiterRestController {
         Pageable pageable = PageRequest.of(page, size);
         Page<JobSummaryDto> result = jobService.getRecruiterJobs(recruiter, pageable);
         return ResponseEntity.ok(ApiResponse.success("Jobs fetched", result));
+    }
+
+    @PutMapping("/jobs/{jobId}/status")
+    public ResponseEntity<ApiResponse<JobSummaryDto>> updateJobStatus(@PathVariable Long jobId,
+                                                                      @Valid @RequestBody JobStatusUpdateRequest request) {
+        User user = securityUtils.getCurrentUserOrThrow();
+        Recruiter recruiter = userService.getRecruiter(user);
+        JobSummaryDto updated = jobService.updateJobStatus(jobId, request.getStatus(), recruiter);
+        String msg = request.getStatus() == JobStatus.CLOSED ? "Job closed to new applications" : "Job reopened";
+        return ResponseEntity.ok(ApiResponse.success(msg, updated));
     }
 
     @GetMapping("/jobs/{jobId}/applications")

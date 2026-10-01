@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Applications')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Applications')"></header>
+        <main class="app-content">
+            <div class="page-head">
+                <div><h1>My applications</h1><p>Track every application from submission to decision.</p></div>
+                <a th:href="@{/jobs}" class="btn btn-primary"><i class="bi bi-search me-2"></i>Find more jobs</a>
+            </div>
+            <div class="tabs-x mb-4" id="app-tabs">
+                <button class="active" data-status="">All</button>
+                <button data-status="APPLIED">Applied</button>
+                <button data-status="UNDER_REVIEW">In review</button>
+                <button data-status="SHORTLISTED">Shortlisted</button>
+                <button data-status="INTERVIEW">Interview</button>
+                <button data-status="SELECTED">Hired</button>
+                <button data-status="REJECTED">Not selected</button>
+            </div>
+            <div id="applications-list">Loading…</div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script>Dash.seekerApplications();</script>
+</body>
+</html>

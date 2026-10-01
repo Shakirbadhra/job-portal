@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Profile')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Profile & settings')"></header>
+        <main class="app-content">
+            <div class="page-head"><div><h1>Profile &amp; settings</h1><p>Recruiters see this information when you apply.</p></div></div>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <form id="profile-form" class="card-x">
+                        <div class="card-x-header"><h2>Professional profile</h2></div>
+                        <div class="card-x-body row g-3">
+                            <div class="col-md-6"><label class="form-label" for="fullName">Full name</label><input id="fullName" class="form-control" th:value="${profile.fullName}"></div>
+                            <div class="col-md-6"><label class="form-label" for="phone">Phone</label><input id="phone" class="form-control" th:value="${profile.phone}"></div>
+                            <div class="col-12"><label class="form-label" for="headline">Headline</label><input id="headline" class="form-control" maxlength="150" placeholder="e.g. Full-stack engineer · Java &amp; React" th:value="${profile.headline}"></div>
+                            <div class="col-md-4"><label class="form-label" for="currentLocation">Location</label><input id="currentLocation" class="form-control" th:value="${profile.currentLocation}"></div>
+                            <div class="col-md-4"><label class="form-label" for="totalExperienceYears">Years of experience</label><input id="totalExperienceYears" type="number" min="0" max="60" class="form-control" th:value="${profile.totalExperienceYears}"></div>
+                            <div class="col-md-4"><label class="form-label" for="highestQualification">Highest qualification</label><input id="highestQualification" class="form-control" th:value="${profile.highestQualification}"></div>
+                            <div class="col-12"><label class="form-label">Skills</label><div class="skill-editor" id="skills"><input placeholder="Type a skill and press Enter" aria-label="Add skill"></div></div>
+                            <div class="col-12"><label class="form-label" for="bio">About you</label><textarea id="bio" rows="5" class="form-control" th:text="${profile.bio}"></textarea></div>
+                        </div>
+                        <div class="card-x-footer text-end"><button class="btn btn-primary">Save changes</button></div>
+                    </form>
+                </div>
+                <div class="col-lg-4"><form th:replace="fragments/dashboard :: password-card"></form></div>
+            </div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script th:inline="javascript">
+    Dash.profileForm(/*[[${profile}]]*/ {}, ['fullName', 'phone', 'headline', 'currentLocation', 'totalExperienceYears', 'highestQualification', 'bio']);
+</script>
+</body>
+</html>

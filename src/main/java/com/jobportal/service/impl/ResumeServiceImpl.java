@@ -3,6 +3,9 @@ package com.jobportal.service.impl;
 import com.jobportal.dto.response.ResumeResponseDto;
 import com.jobportal.entity.JobSeeker;
 import com.jobportal.entity.Resume;
+import com.jobportal.entity.User;
+import com.jobportal.repository.ApplicationRepository;
+import com.jobportal.repository.RecruiterRepository;
 import com.jobportal.exception.BadRequestException;
 import com.jobportal.exception.FileStorageException;
 import com.jobportal.exception.ResourceNotFoundException;
@@ -37,10 +40,16 @@ public class ResumeServiceImpl implements ResumeService {
 
     private Path fileStorageLocation;
     private final ResumeRepository resumeRepository;
+    private final ApplicationRepository applicationRepository;
+    private final RecruiterRepository recruiterRepository;
 
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(".pdf", ".doc", ".docx");
 
-    public ResumeServiceImpl(ResumeRepository resumeRepository) {
+    public ResumeServiceImpl(ResumeRepository resumeRepository,
+                             ApplicationRepository applicationRepository,
+                             RecruiterRepository recruiterRepository) {
+        this.applicationRepository = applicationRepository;
+        this.recruiterRepository = recruiterRepository;
         this.resumeRepository = resumeRepository;
     }
 
@@ -166,6 +175,24 @@ public class ResumeServiceImpl implements ResumeService {
     public Resume getResumeEntity(Long resumeId) {
         return resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Resume not found with id: " + resumeId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean canAccessResume(Long resumeId, User user) {
+        Resume resume = getResumeEntity(resumeId);
+        switch (user.getRole().getName()) {
+            case ROLE_ADMIN:
+                return true;
+            case ROLE_JOB_SEEKER:
+                return resume.getJobSeeker().getUser().getId().equals(user.getId());
+            case ROLE_RECRUITER:
+                return recruiterRepository.findByUserId(user.getId())
+                        .map(r -> applicationRepository.existsByResume_IdAndJob_Recruiter_Id(resumeId, r.getId()))
+                        .orElse(false);
+            default:
+                return false;
+        }
     }
 
     private ResumeResponseDto mapToDto(Resume r) {

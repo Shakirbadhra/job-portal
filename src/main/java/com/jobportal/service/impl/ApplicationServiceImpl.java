@@ -6,6 +6,7 @@ import com.jobportal.dto.response.ApplicationResponseDto;
 import com.jobportal.entity.*;
 import com.jobportal.entity.enums.ApplicationStatus;
 import com.jobportal.entity.enums.JobStatus;
+import com.jobportal.entity.enums.RoleName;
 import com.jobportal.exception.BadRequestException;
 import com.jobportal.exception.DuplicateResourceException;
 import com.jobportal.exception.ResourceNotFoundException;
@@ -127,6 +128,22 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResponseDto getApplicationDetails(Long applicationId) {
         Application app = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
+        return mapToDto(app);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApplicationResponseDto getApplicationDetails(Long applicationId, User viewer) {
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
+
+        RoleName role = viewer.getRole().getName();
+        boolean allowed = role == RoleName.ROLE_ADMIN
+                || (role == RoleName.ROLE_JOB_SEEKER && app.getJobSeeker().getUser().getId().equals(viewer.getId()))
+                || (role == RoleName.ROLE_RECRUITER && app.getJob().getRecruiter().getUser().getId().equals(viewer.getId()));
+        if (!allowed) {
+            throw new UnauthorizedException("You do not have access to this application");
+        }
         return mapToDto(app);
     }
 

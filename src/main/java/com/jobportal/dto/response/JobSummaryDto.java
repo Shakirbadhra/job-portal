@@ -188,4 +188,51 @@ public class JobSummaryDto {
     public void setHasApplied(boolean hasApplied) {
         this.hasApplied = hasApplied;
     }
+
+    // Management fields (used by recruiter / admin listings)
+    private String status;
+    private String statusDisplayName;
+    private Long applicationCount;
+    private Long viewsCount;
+    private java.time.LocalDate deadline;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatusDisplayName() {
+        return statusDisplayName;
+    }
+
+    public void setStatusDisplayName(String statusDisplayName) {
+        this.statusDisplayName = statusDisplayName;
+    }
+
+    public Long getApplicationCount() {
+        return applicationCount;
+    }
+
+    public void setApplicationCount(Long applicationCount) {
+        this.applicationCount = applicationCount;
+    }
+
+    public Long getViewsCount() {
+        return viewsCount;
+    }
+
+    public void setViewsCount(Long viewsCount) {
+        this.viewsCount = viewsCount;
+    }
+
+    public java.time.LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(java.time.LocalDate deadline) {
+        this.deadline = deadline;
+    }
 }

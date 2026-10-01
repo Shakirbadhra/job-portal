@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Saved jobs')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Saved jobs')"></header>
+        <main class="app-content">
+            <div class="page-head"><div><h1>Saved jobs</h1><p>Roles you bookmarked to revisit later.</p></div></div>
+            <div id="saved-list" class="d-flex flex-column gap-3">Loading…</div>
+            <div id="saved-pagination" class="mt-4"></div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script>Dash.seekerSaved();</script>
+</body>
+</html>

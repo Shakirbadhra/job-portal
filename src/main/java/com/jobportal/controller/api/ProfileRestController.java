@@ -1,5 +1,6 @@
 package com.jobportal.controller.api;
 
+import com.jobportal.dto.request.PasswordChangeRequest;
 import com.jobportal.dto.request.ProfileUpdateRequest;
 import com.jobportal.dto.response.ApiResponse;
 import com.jobportal.dto.response.UserProfileDto;
@@ -35,5 +36,12 @@ public class ProfileRestController {
         User user = securityUtils.getCurrentUserOrThrow();
         UserProfileDto updated = userService.updateProfile(user, request);
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", updated));
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody PasswordChangeRequest request) {
+        User user = securityUtils.getCurrentUserOrThrow();
+        userService.changePassword(user, request.getCurrentPassword(), request.getNewPassword());
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully"));
     }
 }

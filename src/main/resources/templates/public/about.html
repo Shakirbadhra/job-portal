@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('About us')"></head>
+<body>
+
+<nav th:replace="fragments/header :: navbar"></nav>
+
+<main>
+    <section class="page-hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="section-eyebrow" style="color:#8fb0ff">About JobConnect</div>
+                    <h1>We're building the most transparent way to hire and get hired.</h1>
+                    <p class="fs-6 mt-3">Job searching shouldn't feel like sending applications into the void. We make every step visible — for candidates and for the teams hiring them.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6">
+                    <div class="section-eyebrow"><i class="bi bi-compass"></i>Our mission</div>
+                    <h2 class="section-title">Make hiring fair, fast and human.</h2>
+                    <p class="text-muted">JobConnect started with a simple frustration: great candidates were losing out because they never heard back, and great teams were losing candidates because their process was opaque.</p>
+                    <p class="text-muted mb-4">Today we help companies publish clear, salary-transparent roles and give every applicant a live view of where they stand. Better information on both sides leads to better matches.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-circle-fill"></i>Salary ranges shown on every listing</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Every application tracked from submission to decision</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Employers verified and every posting moderated</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row g-3">
+                        <div class="col-6"><div class="kpi"><div class="kpi-value">2019</div><div class="kpi-foot">Founded in San Francisco</div></div></div>
+                        <div class="col-6"><div class="kpi"><div class="kpi-value">48</div><div class="kpi-foot">Team members across 9 countries</div></div></div>
+                        <div class="col-6"><div class="kpi"><div class="kpi-value">94%</div><div class="kpi-foot">of applicants receive a status update</div></div></div>
+                        <div class="col-6"><div class="kpi"><div class="kpi-value">11 days</div><div class="kpi-foot">median time from apply to first interview</div></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section bg-surface border-top border-bottom">
+        <div class="container">
+            <div class="text-center mb-5">
+                <div class="section-eyebrow"><i class="bi bi-heart"></i>What we value</div>
+                <h2 class="section-title">The principles behind the product</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-ico"><i class="bi bi-eye"></i></div>
+                    <h3 class="h6">Transparency first</h3>
+                    <p class="text-muted small mb-0">Salaries, requirements and application status are visible by default — never hidden behind a call.</p>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-ico"><i class="bi bi-people"></i></div>
+                    <h3 class="h6">Respect for candidates</h3>
+                    <p class="text-muted small mb-0">Every applicant deserves a response. Our tools make closing the loop effortless for recruiters.</p>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-ico"><i class="bi bi-shield-check"></i></div>
+                    <h3 class="h6">Trust &amp; safety</h3>
+                    <p class="text-muted small mb-0">Employers are verified and postings are moderated so you only see real opportunities.</p>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-ico"><i class="bi bi-lightning-charge"></i></div>
+                    <h3 class="h6">Speed without shortcuts</h3>
+                    <p class="text-muted small mb-0">Apply in one click and move candidates forward in seconds — without losing the human touch.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-6" id="privacy">
+                    <div class="card-x card-x-body h-100 p-4">
+                        <div class="feature-ico"><i class="bi bi-lock"></i></div>
+                        <h2 class="h5">Privacy policy</h2>
+                        <p class="text-muted small">We collect only what's needed to run the service: your account details, profile, resumes you upload and applications you submit.</p>
+                        <ul class="check-list small">
+                            <li><i class="bi bi-check2"></i>Your resume is shared only with employers you apply to.</li>
+                            <li><i class="bi bi-check2"></i>We never sell personal data to third parties.</li>
+                            <li><i class="bi bi-check2"></i>You can update or delete your profile and resumes at any time.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6" id="terms">
+                    <div class="card-x card-x-body h-100 p-4">
+                        <div class="feature-ico"><i class="bi bi-file-text"></i></div>
+                        <h2 class="h5">Terms of service</h2>
+                        <p class="text-muted small">By using JobConnect you agree to provide accurate information and to use the platform for genuine hiring and job-seeking purposes.</p>
+                        <ul class="check-list small">
+                            <li><i class="bi bi-check2"></i>Employers must post real, currently open positions.</li>
+                            <li><i class="bi bi-check2"></i>Discriminatory or misleading postings are removed.</li>
+                            <li><i class="bi bi-check2"></i>Accounts that violate these terms may be suspended.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section pt-0">
+        <div class="container">
+            <div class="cta-band text-center">
+                <h2 class="section-title mb-2">Ready to see it for yourself?</h2>
+                <p class="mb-4">Browse open roles or start hiring in minutes.</p>
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                    <a th:href="@{/jobs}" class="btn btn-white btn-lg">Browse jobs</a>
+                    <a th:href="@{/register(role='RECRUITER')}" class="btn btn-outline-light-x btn-lg">Start hiring</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+</body>
+</html>

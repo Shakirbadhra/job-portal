@@ -34,7 +34,7 @@ public class JobSpecification {
                 Predicate descMatch = cb.like(cb.lower(root.get("description")), term);
                 Predicate compMatch = cb.like(cb.lower(companyJoin.get("name")), term);
 
-                predicates.add(cb.or(titleMatch, descMatch, compMatch));
+                predicates.add(cb.or(titleMatch, descMatch, compMatch, skillExists(root, query, cb, term, true)));
             }
 
             // Location
@@ -81,16 +81,21 @@ public class JobSpecification {
                 predicates.add(cb.equal(root.get("company").get("id"), criteria.getCompanyId()));
             }
 
-            // Specific Skill
+            // Specific Skill (sub-query keeps one row per job, so no DISTINCT is needed)
             if (StringUtils.hasText(criteria.getSkill())) {
-                Join<Job, Skill> skillJoin = root.join("skills", JoinType.LEFT);
-                predicates.add(cb.equal(cb.lower(skillJoin.get("name")), criteria.getSkill().trim().toLowerCase()));
+                predicates.add(skillExists(root, query, cb, criteria.getSkill().trim().toLowerCase(), false));
             }
-
-            // Distinct results if joins are present
-            query.distinct(true);
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    private static Predicate skillExists(Root<Job> root, CriteriaQuery<?> query, CriteriaBuilder cb, String value, boolean like) {
+        Subquery<Long> sub = query.subquery(Long.class);
+        Root<Job> subJob = sub.from(Job.class);
+        Join<Job, Skill> skill = subJob.join("skills");
+        Predicate match = like ? cb.like(cb.lower(skill.get("name")), value) : cb.equal(cb.lower(skill.get("name")), value);
+        sub.select(subJob.get("id")).where(cb.equal(subJob.get("id"), root.get("id")), match);
+        return cb.exists(sub);
     }
 }

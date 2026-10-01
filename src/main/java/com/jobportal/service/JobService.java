@@ -30,4 +30,12 @@ public interface JobService {
     boolean rejectJob(Long jobId);
     List<JobSummaryDto> getRecommendedJobs(JobSeeker seeker, int limit);
     Job getJobEntity(Long jobId);
+
+    JobDetailDto getJobForRecruiter(Long jobId, Recruiter recruiter);
+
+    JobSummaryDto updateJobStatus(Long jobId, JobStatus status, Recruiter recruiter);
+
+    boolean toggleFeatured(Long jobId);
+
+    java.util.Map<String, Long> getCategoryCounts();
 }

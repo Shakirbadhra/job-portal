@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!--/* Left navigation for all signed-in workspaces. Links are chosen by role. */-->
+<aside th:fragment="sidebar" class="app-sidebar" id="appSidebar" aria-label="Workspace navigation"
+       th:with="displayName=${currentUser != null ? currentUser.fullName : #authentication.principal.fullName}">
+    <div class="sb-brand d-flex align-items-center justify-content-between">
+        <a th:href="@{/}" class="brand-logo">
+            <span class="brand-mark"><i class="bi bi-briefcase-fill"></i></span>
+            <span>JobConnect</span>
+        </a>
+        <button class="btn btn-icon btn-sm text-white d-lg-none" type="button" data-toggle-sidebar aria-label="Close menu">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="sb-role">
+        <span class="avatar" th:text="${#strings.toUpperCase(#strings.substring(displayName,0,1))}">U</span>
+        <div class="min-w-0">
+            <div class="name text-truncate" th:text="${displayName}">User</div>
+            <div class="role" sec:authorize="hasAuthority('ROLE_JOB_SEEKER')">Candidate</div>
+            <div class="role" sec:authorize="hasAuthority('ROLE_RECRUITER')">Recruiter</div>
+            <div class="role" sec:authorize="hasAuthority('ROLE_ADMIN')">Administrator</div>
+        </div>
+    </div>
+
+    <nav>
+        <th:block sec:authorize="hasAuthority('ROLE_JOB_SEEKER')">
+            <div class="sb-label">Overview</div>
+            <a class="sb-link" th:href="@{/seeker/dashboard}"><i class="bi bi-grid-1x2"></i>Dashboard</a>
+            <a class="sb-link" th:href="@{/jobs}" data-exact><i class="bi bi-search"></i>Find jobs</a>
+            <div class="sb-label">Job search</div>
+            <a class="sb-link" th:href="@{/seeker/applied-jobs}"><i class="bi bi-send"></i>Applications</a>
+            <a class="sb-link" th:href="@{/seeker/saved-jobs}"><i class="bi bi-bookmark"></i>Saved jobs</a>
+            <div class="sb-label">Account</div>
+            <a class="sb-link" th:href="@{/seeker/resumes}"><i class="bi bi-file-earmark-text"></i>Resumes</a>
+            <a class="sb-link" th:href="@{/seeker/profile}"><i class="bi bi-person"></i>Profile &amp; settings</a>
+        </th:block>
+
+        <th:block sec:authorize="hasAuthority('ROLE_RECRUITER')">
+            <div class="sb-label">Overview</div>
+            <a class="sb-link" th:href="@{/recruiter/dashboard}"><i class="bi bi-grid-1x2"></i>Dashboard</a>
+            <div class="sb-label">Hiring</div>
+            <a class="sb-link" th:href="@{/recruiter/post-job}"><i class="bi bi-plus-square"></i>Post a job</a>
+            <a class="sb-link" th:href="@{/recruiter/manage-jobs}"><i class="bi bi-briefcase"></i>Job posts</a>
+            <a class="sb-link" th:href="@{/recruiter/applicants}"><i class="bi bi-people"></i>Applicants</a>
+            <div class="sb-label">Organisation</div>
+            <a class="sb-link" th:href="@{/recruiter/company-profile}"><i class="bi bi-building"></i>Company profile</a>
+        </th:block>
+
+        <th:block sec:authorize="hasAuthority('ROLE_ADMIN')">
+            <div class="sb-label">Overview</div>
+            <a class="sb-link" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2"></i>Dashboard</a>
+            <div class="sb-label">Platform</div>
+            <a class="sb-link" th:href="@{/admin/manage-jobs}"><i class="bi bi-briefcase"></i>Job moderation</a>
+            <a class="sb-link" th:href="@{/admin/manage-applications}"><i class="bi bi-card-checklist"></i>Applications</a>
+            <a class="sb-link" th:href="@{/admin/manage-users}"><i class="bi bi-people"></i>Users</a>
+            <a class="sb-link" th:href="@{/admin/messages}"><i class="bi bi-inbox"></i>Inbox</a>
+        </th:block>
+    </nav>
+
+    <div class="sb-foot">
+        <a class="sb-link" th:href="@{/}"><i class="bi bi-house"></i>Back to website</a>
+        <form th:action="@{/logout}" method="post" class="m-0">
+            <button type="submit" class="sb-link w-100 border-0 bg-transparent text-start"><i class="bi bi-box-arrow-left"></i>Sign out</button>
+        </form>
+    </div>
+</aside>
+
+<!--/* Sticky top bar inside the workspace. `crumb` is the current page name. */-->
+<header th:fragment="topbar(crumb)" class="app-topbar">
+    <button class="btn btn-icon btn-outline d-lg-none" type="button" data-toggle-sidebar aria-label="Open menu">
+        <i class="bi bi-list"></i>
+    </button>
+    <div class="crumb d-none d-sm-block">
+        <span sec:authorize="hasAuthority('ROLE_JOB_SEEKER')">Candidate</span>
+        <span sec:authorize="hasAuthority('ROLE_RECRUITER')">Recruiter</span>
+        <span sec:authorize="hasAuthority('ROLE_ADMIN')">Admin</span>
+        <i class="bi bi-chevron-right mx-1 small"></i>
+        <strong th:text="${crumb}">Dashboard</strong>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+        <a sec:authorize="hasAuthority('ROLE_JOB_SEEKER')" th:href="@{/jobs}" class="btn btn-outline btn-sm d-none d-md-inline-flex align-items-center gap-2">
+            <i class="bi bi-search"></i>Browse jobs
+        </a>
+        <a sec:authorize="hasAuthority('ROLE_RECRUITER')" th:href="@{/recruiter/post-job}" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-2">
+            <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline">Post a job</span>
+        </a>
+        <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/}" class="btn btn-outline btn-sm d-none d-md-inline-flex align-items-center gap-2" target="_blank">
+            <i class="bi bi-box-arrow-up-right"></i>View site
+        </a>
+    </div>
+</header>
+
+<div th:fragment="backdrop" class="sb-backdrop"></div>
+
+<!--/* Change-password card, shared by every role's settings page */-->
+<form th:fragment="password-card" class="card-x" id="password-form">
+    <div class="card-x-header"><h2>Change password</h2></div>
+    <div class="card-x-body d-flex flex-column gap-3">
+        <div><label class="form-label" for="pw-current">Current password</label><input id="pw-current" type="password" class="form-control" autocomplete="current-password" required></div>
+        <div><label class="form-label" for="pw-new">New password</label><input id="pw-new" type="password" class="form-control" minlength="6" autocomplete="new-password" required></div>
+        <div><label class="form-label" for="pw-confirm">Confirm new password</label><input id="pw-confirm" type="password" class="form-control" autocomplete="new-password" required></div>
+    </div>
+    <div class="card-x-footer text-end"><button class="btn btn-outline">Update password</button></div>
+    <script>
+        document.getElementById('password-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const cur = document.getElementById('pw-current').value, nw = document.getElementById('pw-new').value;
+            if (nw !== document.getElementById('pw-confirm').value) return JC.toast('New passwords do not match.', 'error');
+            const r = await Dash.act('/api/profile/password', 'PUT', { currentPassword: cur, newPassword: nw }, 'Password updated.', false);
+            if (r) e.target.reset();
+        });
+    </script>
+</form>
+
+</body>
+</html>

@@ -67,7 +67,7 @@ public class ApplicationRestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ApplicationResponseDto>> getApplicationDetails(@PathVariable Long id) {
-        ApplicationResponseDto dto = applicationService.getApplicationDetails(id);
+        ApplicationResponseDto dto = applicationService.getApplicationDetails(id, securityUtils.getCurrentUserOrThrow());
         return ResponseEntity.ok(ApiResponse.success("Application details", dto));
     }
 }

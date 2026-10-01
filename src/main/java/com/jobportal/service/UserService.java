@@ -17,4 +17,6 @@ public interface UserService {
     boolean toggleUserStatus(Long userId);
     JobSeeker getJobSeeker(User user);
     Recruiter getRecruiter(User user);
+
+    void changePassword(User user, String currentPassword, String newPassword);
 }

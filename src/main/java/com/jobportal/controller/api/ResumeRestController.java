@@ -4,6 +4,7 @@ import com.jobportal.dto.response.ApiResponse;
 import com.jobportal.dto.response.ResumeResponseDto;
 import com.jobportal.entity.JobSeeker;
 import com.jobportal.entity.Resume;
+import com.jobportal.exception.UnauthorizedException;
 import com.jobportal.entity.User;
 import com.jobportal.security.SecurityUtils;
 import com.jobportal.service.ResumeService;
@@ -73,7 +74,12 @@ public class ResumeRestController {
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> downloadResume(@PathVariable Long id) {
+    public ResponseEntity<Resource> downloadResume(@PathVariable Long id,
+                                                   @RequestParam(defaultValue = "false") boolean inline) {
+        User user = securityUtils.getCurrentUserOrThrow();
+        if (!resumeService.canAccessResume(id, user)) {
+            throw new UnauthorizedException("You do not have access to this resume");
+        }
         Resume resume = resumeService.getResumeEntity(id);
         Resource resource = resumeService.loadResumeResource(id);
 
@@ -84,7 +90,8 @@ public class ResumeRestController {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resume.getOriginalFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, (inline ? "inline" : "attachment")
+                        + "; filename=\"" + resume.getOriginalFilename().replace("\"", "") + "\"")
                 .body(resource);
     }
 }

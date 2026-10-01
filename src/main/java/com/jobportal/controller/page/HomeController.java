@@ -45,6 +45,7 @@ public class HomeController {
         model.addAttribute("recentJobs", recentJobs);
         model.addAttribute("topCompanies", topCompanies);
         model.addAttribute("categories", categories);
+        model.addAttribute("categoryCounts", jobService.getCategoryCounts());
         model.addAttribute("stats", stats);
         model.addAttribute("currentUser", currentUser);
         return "public/index";

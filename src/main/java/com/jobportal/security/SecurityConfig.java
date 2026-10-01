@@ -3,6 +3,9 @@ package com.jobportal.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -46,9 +49,10 @@ public class SecurityConfig {
                 // Static resources
                 .antMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
                 // Public view pages
-                .antMatchers("/", "/jobs", "/jobs/**", "/companies", "/companies/**", "/about", "/contact", "/login", "/register").permitAll()
+                .antMatchers("/", "/jobs", "/jobs/**", "/companies", "/companies/**", "/about", "/contact", "/login", "/register", "/error", "/error/**").permitAll()
                 // Public REST APIs
                 .antMatchers("/api/auth/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/contact").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/jobs/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/companies/**").permitAll()
                 // Role-based page access
@@ -76,12 +80,23 @@ public class SecurityConfig {
                 .failureUrl("/login?error=true")
                 .permitAll()
                 .and()
+            .rememberMe()
+                .key("jobconnect-remember-me-key")
+                .rememberMeParameter("remember-me")
+                .tokenValiditySeconds(14 * 24 * 60 * 60)
+                .and()
+            .exceptionHandling()
+                // API clients get a 401 instead of a redirect to the HTML login page
+                .defaultAuthenticationEntryPointFor(
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                        new AntPathRequestMatcher("/api/**"))
+                .and()
             .logout()
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
-                .deleteCookies("JSESSIONID")
+                .deleteCookies("JSESSIONID", "remember-me")
                 .permitAll();
 
         return http.build();

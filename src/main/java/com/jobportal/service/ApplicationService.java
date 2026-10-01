@@ -15,6 +15,9 @@ public interface ApplicationService {
     Page<ApplicationResponseDto> getRecruiterApplications(Long recruiterId, Pageable pageable);
     Page<ApplicationResponseDto> getJobApplications(Long jobId, Recruiter recruiter, Pageable pageable);
     ApplicationResponseDto getApplicationDetails(Long applicationId);
+
+    /** Returns the application only if the viewer owns it (seeker), owns the job (recruiter) or is an admin. */
+    ApplicationResponseDto getApplicationDetails(Long applicationId, com.jobportal.entity.User viewer);
     ApplicationResponseDto updateApplicationStatus(Long applicationId, ApplicationStatusUpdateRequest request, Recruiter recruiter);
     Page<ApplicationResponseDto> getAllApplicationsForAdmin(Pageable pageable);
 }

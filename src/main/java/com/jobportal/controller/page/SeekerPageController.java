@@ -49,6 +49,7 @@ public class SeekerPageController {
         model.addAttribute("currentUser", user);
         model.addAttribute("stats", stats);
         model.addAttribute("recommendedJobs", recommendedJobs);
+        model.addAttribute("profile", userService.getUserProfile(user));
         return "seeker/dashboard";
     }
 

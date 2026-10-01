@@ -81,7 +81,8 @@ public class RecruiterPageController {
     @GetMapping("/edit-job/{id}")
     public String editJob(@PathVariable Long id, Model model) {
         User user = securityUtils.getCurrentUserOrThrow();
-        JobDetailDto job = jobService.getJobDetails(id, user);
+        Recruiter recruiter = userService.getRecruiter(user);
+        JobDetailDto job = jobService.getJobForRecruiter(id, recruiter);
         List<String> categories = jobService.getCategories();
 
         model.addAttribute("currentUser", user);
@@ -107,7 +108,7 @@ public class RecruiterPageController {
     @GetMapping("/applicants/{id}")
     public String applicantDetails(@PathVariable Long id, Model model) {
         User user = securityUtils.getCurrentUserOrThrow();
-        ApplicationResponseDto application = applicationService.getApplicationDetails(id);
+        ApplicationResponseDto application = applicationService.getApplicationDetails(id, user);
 
         model.addAttribute("currentUser", user);
         model.addAttribute("app", application);

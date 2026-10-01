@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: html-head('Applications')"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="fragments/dashboard :: sidebar"></aside>
+    <div th:replace="fragments/dashboard :: backdrop"></div>
+    <div class="app-main">
+        <header th:replace="fragments/dashboard :: topbar('Applications')"></header>
+        <main class="app-content">
+            <div class="page-head"><div><h1>Applications</h1><p>Every application submitted on the platform.</p></div></div>
+            <div class="card-x"><div class="table-responsive"><table class="table table-x">
+                <thead><tr><th>Candidate</th><th>Job</th><th>Company</th><th>Applied</th><th>Status</th></tr></thead>
+                <tbody id="apps-body"></tbody>
+            </table></div></div>
+            <div id="apps-pag" class="mt-4"></div>
+        </main>
+    </div>
+</div>
+<th:block th:replace="fragments/footer :: scripts"></th:block>
+<script th:src="@{/js/dashboards.js}"></script>
+<script th:src="@{/js/workspace.js}"></script>
+<script>Dash.adminApplications();</script>
+</body>
+</html>

@@ -5,12 +5,18 @@ import com.jobportal.entity.enums.*;
 import com.jobportal.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -30,6 +36,9 @@ public class DataInitializer implements CommandLineRunner {
     private final ApplicationRepository applicationRepository;
     private final SavedJobRepository savedJobRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${jobportal.upload.resume-dir:uploads/resumes}")
+    private String resumeDir;
 
     public DataInitializer(RoleRepository roleRepository,
                            UserRepository userRepository,
@@ -121,7 +130,8 @@ public class DataInitializer implements CommandLineRunner {
             Company comp = companyRepository.findByName(name).orElseGet(() -> {
                 Company entity = new Company();
                 entity.setName(name);
-                entity.setLogoUrl((String) c[1]);
+                // Logos render as branded monograms in the UI; recruiters can set a logo URL from their company profile
+                entity.setLogoUrl(null);
                 entity.setWebsite((String) c[2]);
                 entity.setIndustry((String) c[3]);
                 entity.setDescription((String) c[4]);
@@ -209,12 +219,14 @@ public class DataInitializer implements CommandLineRunner {
 
             // Add sample resume for seeker
             if (resumeRepository.findByJobSeekerOrderByUploadedAtDesc(seeker).isEmpty()) {
+                String storedName = UUID.randomUUID().toString() + ".pdf";
+                Path pdfPath = writeSampleResumePdf(storedName, name, headline, email);
                 Resume sampleResume = new Resume(
                         seeker,
                         name.replace(" ", "_") + "_Resume_2026.pdf",
-                        UUID.randomUUID().toString() + ".pdf",
-                        "uploads/resumes/sample.pdf",
-                        245000L,
+                        storedName,
+                        pdfPath.toString(),
+                        pdfPath.toFile().length(),
                         "application/pdf"
                 );
                 sampleResume.setPrimary(true);
@@ -360,7 +372,131 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
+        // 9. Applications from the other candidates so every recruiter has a pipeline to review
+        ApplicationStatus[] pipeline = {
+                ApplicationStatus.APPLIED, ApplicationStatus.UNDER_REVIEW, ApplicationStatus.SHORTLISTED,
+                ApplicationStatus.INTERVIEW, ApplicationStatus.SELECTED, ApplicationStatus.REJECTED
+        };
+        for (int s = 1; s < seekersList.size(); s++) {
+            JobSeeker candidate = seekersList.get(s);
+            List<Resume> candidateResumes = resumeRepository.findByJobSeekerOrderByUploadedAtDesc(candidate);
+            Resume candidateResume = candidateResumes.isEmpty() ? null : candidateResumes.get(0);
+            for (int k = 0; k < 5; k++) {
+                int jobIdx = (s * 3 + k * 2) % createdJobs.size();
+                Job job = createdJobs.get(jobIdx);
+                if (!applicationRepository.existsByJobAndJobSeeker(job, candidate)) {
+                    Application app = new Application();
+                    app.setJob(job);
+                    app.setJobSeeker(candidate);
+                    app.setResume(candidateResume);
+                    app.setCoverLetter("Hello " + job.getCompany().getName() + " team,\n\nI'd love to bring my experience as a "
+                            + candidate.getHeadline() + " to the " + job.getTitle() + " role. I've attached my resume and would welcome a conversation.\n\nKind regards,\n"
+                            + candidate.getUser().getFullName());
+                    app.setStatus(pipeline[(s + k) % pipeline.length]);
+                    applicationRepository.save(app);
+                }
+            }
+        }
+
+        // 10. A couple of postings awaiting moderation, so the admin approval queue has content
+        Object[][] pendingJobs = {
+                {"Platform Engineer - Developer Experience", "Google", "Software Engineering", new String[]{"Kubernetes", "Docker", "CI/CD"}},
+                {"Senior iOS Engineer", "Spotify", "Software Engineering", new String[]{"TypeScript", "REST APIs"}}
+        };
+        for (Object[] pj : pendingJobs) {
+            String compName = (String) pj[1];
+            Recruiter owner = recruitersList.stream()
+                    .filter(r -> r.getCompany() != null && compName.equals(r.getCompany().getName()))
+                    .findFirst().orElse(recruitersList.get(0));
+            Job job = new Job();
+            job.setTitle((String) pj[0]);
+            job.setCompany(owner.getCompany());
+            job.setRecruiter(owner);
+            job.setJobCategory((String) pj[2]);
+            job.setEmploymentType(EmploymentType.FULL_TIME);
+            job.setWorkplaceType(WorkplaceType.HYBRID);
+            job.setExperienceLevel(ExperienceLevel.EXPERIENCED);
+            job.setMinExperienceYears(4);
+            job.setMaxExperienceYears(8);
+            job.setMinSalary(new BigDecimal("150000"));
+            job.setMaxSalary(new BigDecimal("200000"));
+            job.setLocation(owner.getCompany().getLocation());
+            job.setStatus(JobStatus.PENDING);
+            job.setDeadline(LocalDate.now().plusDays(30));
+            job.setDescription("Join " + compName + " as a " + job.getTitle() + " and help shape the tools and platforms our teams rely on every day.");
+            job.setRequirements("- 4+ years of relevant industry experience.\n- Strong communication and collaboration skills.");
+            Set<Skill> pSkills = new HashSet<>();
+            for (String s : (String[]) pj[3]) {
+                if (skillsMap.containsKey(s)) pSkills.add(skillsMap.get(s));
+            }
+            job.setSkills(pSkills);
+            jobRepository.save(job);
+        }
+
         log.info("Database seeding completed successfully! Total jobs: {}, Total companies: {}",
                 jobRepository.count(), companyRepository.count());
+    }
+
+    /**
+     * Writes a small, valid one-page PDF so seeded resumes can actually be previewed and downloaded.
+     */
+    private Path writeSampleResumePdf(String storedName, String name, String headline, String email) {
+        Path dir = Paths.get(resumeDir).toAbsolutePath().normalize();
+        Path target = dir.resolve(storedName);
+        String[] lines = {
+                name,
+                headline,
+                email,
+                "",
+                "PROFESSIONAL SUMMARY",
+                "Results-driven professional with a track record of shipping reliable,",
+                "well-tested software and collaborating across product and design.",
+                "",
+                "EXPERIENCE",
+                "Senior Engineer - Northwind Labs (2022 - Present)",
+                "Software Engineer - Contoso Systems (2019 - 2022)",
+                "",
+                "EDUCATION",
+                "Bachelor of Science, Computer Science",
+                "",
+                "This is a sample resume generated by JobConnect for demo purposes."
+        };
+        StringBuilder content = new StringBuilder("BT\n/F1 20 Tf\n72 740 Td\n");
+        for (int i = 0; i < lines.length; i++) {
+            if (i == 1) content.append("/F1 12 Tf\n");
+            String safe = lines[i].replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)");
+            content.append('(').append(safe).append(") Tj\n0 -20 Td\n");
+        }
+        content.append("ET\n");
+        String stream = content.toString();
+
+        List<String> objects = Arrays.asList(
+                "<< /Type /Catalog /Pages 2 0 R >>",
+                "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+                "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",
+                "<< /Length " + stream.getBytes(StandardCharsets.ISO_8859_1).length + " >>\nstream\n" + stream + "endstream",
+                "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"
+        );
+        StringBuilder pdf = new StringBuilder("%PDF-1.4\n");
+        List<Integer> offsets = new ArrayList<>();
+        for (int i = 0; i < objects.size(); i++) {
+            offsets.add(pdf.toString().getBytes(StandardCharsets.ISO_8859_1).length);
+            pdf.append(i + 1).append(" 0 obj\n").append(objects.get(i)).append("\nendobj\n");
+        }
+        int xref = pdf.toString().getBytes(StandardCharsets.ISO_8859_1).length;
+        pdf.append("xref\n0 ").append(objects.size() + 1).append("\n0000000000 65535 f \n");
+        for (Integer off : offsets) {
+            pdf.append(String.format("%010d 00000 n \n", off));
+        }
+        pdf.append("trailer\n<< /Size ").append(objects.size() + 1).append(" /Root 1 0 R >>\nstartxref\n")
+                .append(xref).append("\n%%EOF\n");
+
+        try {
+            Files.createDirectories(dir);
+            Files.write(target, pdf.toString().getBytes(StandardCharsets.ISO_8859_1));
+        } catch (IOException e) {
+            log.warn("Could not write sample resume {}: {}", target, e.getMessage());
+        }
+        return target;
     }
 }
